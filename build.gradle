@@ -1,16 +1,15 @@
 buildscript {
-	ext {
-		springBootVersion = '2.1.1.RELEASE'
-	}
-	repositories {
-		// mavenCentral()
+    ext {
+        springBootVersion = '2.1.1.RELEASE'
+    }
+    repositories {
         maven {
             url "${nexusUrl}/repository/maven-public/"
         }
-	}
-	dependencies {
-		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
-	}
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+    }
 }
 
 apply plugin: 'java'
@@ -25,19 +24,18 @@ version = '0.0.1-SNAPSHOT'
 sourceCompatibility = 1.8
 
 repositories {
-	// mavenCentral()
-	maven {
+    maven {
         url "${nexusUrl}/repository/maven-public/"
     }
 }
 
 
 dependencies {
-	implementation('org.springframework.boot:spring-boot-starter-data-jpa')
-	implementation('org.springframework.boot:spring-boot-starter-security')
-	implementation('org.springframework.boot:spring-boot-starter-web')
-	testImplementation('org.springframework.boot:spring-boot-starter-test')
-	testImplementation('org.springframework.security:spring-security-test')
+    implementation('org.springframework.boot:spring-boot-starter-data-jpa')
+    implementation('org.springframework.boot:spring-boot-starter-security')
+    implementation('org.springframework.boot:spring-boot-starter-web')
+    testImplementation('org.springframework.boot:spring-boot-starter-test')
+    testImplementation('org.springframework.security:spring-security-test')
 }
 
 publishing {
@@ -52,8 +50,8 @@ publishing {
     repositories {
         maven {
             credentials {
-                username ${nexusUsername}
-                password ${nexusPassword}
+                username "${nexusUsername}"
+                password "${nexusPassword}"
             }
             if (!project.version.endsWith('-SNAPSHOT')) {
                 url "${nexusUrl}/repository/maven-releases"
