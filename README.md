@@ -16,7 +16,6 @@ plugins {
 }
 ```
 - and run the following command:
-
 ```
 ./gradlew sonarqube \
   -Dsonar.host.url=https://sonar.ssii.com \
