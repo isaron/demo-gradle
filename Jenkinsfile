@@ -8,7 +8,9 @@ pipeline {
   stages {
     stage('Checkout') {
       steps {
+        // checkout([$class: 'GitSCM',branches:[[name:'*/master']],doGenerateSubmoduleConfigurations:false,xtensions:[],submoduleCfg:[],userRemoteConfigs:[[credentialsId:'git:12c5e7bd0e763bbeffcbd5e1bcbc7e010014e7c083c3e78474e99fccbbe68237',url:'https://gitea.ssii.com/RDP/demo-gradle.git']]])
         checkout scm
+        
       }
     }
     stage('Test') {
@@ -32,6 +34,11 @@ pipeline {
       steps {
         sh './gradlew publish'
         sh './gradlew docker'
+      }
+    }
+    stage('Deploy') {
+      steps {
+        sh './gradle deploy'
       }
     }
   }
