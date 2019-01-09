@@ -14,6 +14,7 @@ buildscript {
 
 plugins {
   id "org.sonarqube" version "2.6"
+  id 'com.bmuschko.docker-remote-api' version '4.2.0'
 }
 
 apply plugin: 'java'
@@ -64,4 +65,37 @@ publishing {
             }
         }
     }
+}
+
+docker {
+    url = 'tcp://${dockerbot}:2375'
+    // url = 'unix:///var/run/docker.sock'  //Docker daemon on linux
+    // url = 'tcp://127.0.0.1:2375'         //Docker daemon on windows or linux
+
+    registryCredentials {
+        url = '${registryUrl}'
+        username = '${nexusUsername}'
+        password = '${nexusPassword}'
+    }
+}
+
+import com.bmuschko.gradle.docker.tasks.image.*
+
+task getDockerfile(type: Dockerfile) {
+    destFile = project.file('Dockerfile')
+}
+
+task buildImage(type: DockerBuildImage) {
+    dependsOn getDockerfile
+    inputDir = getDockerfile.destFile.get().asFile.parentFile
+    tags.add('${registryUrl}/${rootProject.name}:${project.version}')
+}
+
+task pushImage(type: DockerPushImage) {
+    dependsOn buildImage
+    imageName = buildImage.tags.get().first()
+}
+
+task docker {
+    dependsOn pushImage
 }
