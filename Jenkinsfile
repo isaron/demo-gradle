@@ -1,7 +1,7 @@
 pipeline {
   agent {
     node {
-      label 'slave01-gradle-springboot'
+      label 'default'
     }
 
   }

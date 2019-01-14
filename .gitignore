@@ -2,6 +2,8 @@
 /build/
 !gradle/wrapper/gradle-wrapper.jar
 local.properties
+/bin/
+.vscode
 
 ### STS ###
 .apt_generated
