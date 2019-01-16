@@ -10,7 +10,7 @@ buildscript {
     dependencies {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
         classpath "gradle.plugin.com.google.cloud.tools:jib-gradle-plugin:1.0.0-rc2"
-        classpath 'com.bmuschko:gradle-docker-plugin:4.2.0'
+        // classpath 'com.bmuschko:gradle-docker-plugin:4.2.0'
     }
 }
 
@@ -28,7 +28,7 @@ apply plugin: 'io.spring.dependency-management'
 apply plugin: 'maven-publish'
 
 apply plugin: "com.google.cloud.tools.jib"
-apply plugin: 'com.bmuschko.docker-remote-api'
+// apply plugin: 'com.bmuschko.docker-remote-api'
 
 
 group = 'com.ssii'
@@ -74,35 +74,37 @@ publishing {
     }
 }
 
-docker {
-    url = 'tcp://${dockerbot}:2375'
-    // url = 'unix:///var/run/docker.sock'  //Docker daemon on linux
-    // url = 'tcp://127.0.0.1:2375'         //Docker daemon on windows or linux
+jib.to.image = '${registryUrl}/${rootProject.name}:${project.version}'
 
-    registryCredentials {
-        url = '${registryUrl}'
-        username = '${nexusUsername}'
-        password = '${nexusPassword}'
-    }
-}
+// docker {
+//     url = 'tcp://${dockerbot}:2375'
+//     // url = 'unix:///var/run/docker.sock'  //Docker daemon on linux
+//     // url = 'tcp://127.0.0.1:2375'         //Docker daemon on windows or linux
 
-import com.bmuschko.gradle.docker.tasks.image.*
+//     registryCredentials {
+//         url = '${registryUrl}'
+//         username = '${nexusUsername}'
+//         password = '${nexusPassword}'
+//     }
+// }
 
-task getDockerfile(type: Dockerfile) {
-    destFile = project.file('Dockerfile')
-}
+// import com.bmuschko.gradle.docker.tasks.image.*
 
-task buildImage(type: DockerBuildImage) {
-    dependsOn getDockerfile
-    inputDir = getDockerfile.destFile.get().asFile.parentFile
-    tags.add('${registryUrl}/${rootProject.name}:${project.version}')
-}
+// task getDockerfile(type: Dockerfile) {
+//     destFile = project.file('Dockerfile')
+// }
 
-task pushImage(type: DockerPushImage) {
-    dependsOn buildImage
-    imageName = buildImage.tags.get().first()
-}
+// task buildImage(type: DockerBuildImage) {
+//     dependsOn getDockerfile
+//     inputDir = getDockerfile.destFile.get().asFile.parentFile
+//     tags.add('${registryUrl}/${rootProject.name}:${project.version}')
+// }
 
-task docker {
-    dependsOn pushImage
-}
+// task pushImage(type: DockerPushImage) {
+//     dependsOn buildImage
+//     imageName = buildImage.tags.get().first()
+// }
+
+// task docker {
+//     dependsOn pushImage
+// }
