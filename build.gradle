@@ -55,9 +55,9 @@ dependencies {
 publishing {
     publications {
         maven(MavenPublication) {
-            artifactId '${rootProject.name}'
+            artifactId rootProject.name
             from components.java
-            groupId '${group}'
+            groupId project.group
             version project.version
         }
     }
