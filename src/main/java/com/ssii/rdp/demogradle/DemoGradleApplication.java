@@ -1,13 +1,13 @@
-package com.ssii.demo;
+package com.ssii.rdp.demogradle;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class DemoApplication {
+public class DemoGradleApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(DemoApplication.class, args);
+		SpringApplication.run(DemoGradleApplication.class, args);
 	}
 
 }

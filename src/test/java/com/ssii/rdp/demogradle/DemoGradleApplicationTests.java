@@ -1,4 +1,4 @@
-package com.ssii.demo;
+package com.ssii.rdp.demogradle;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -7,7 +7,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class DemoApplicationTests {
+public class DemoGradleApplicationTests {
 
 	@Test
 	public void contextLoads() {

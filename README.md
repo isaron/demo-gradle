@@ -6,6 +6,7 @@ Spring Boot compoments:
 - Web
 - JPA
 - Security
+- Actuator
 
 Run Sonar Scanner for Gradle:
 - declare the `org.sonarqube` plugin in your `build.gradle` file:
