@@ -48,6 +48,8 @@ dependencies {
     implementation('org.springframework.boot:spring-boot-starter-web')
     testImplementation('org.springframework.boot:spring-boot-starter-test')
     testImplementation('org.springframework.security:spring-security-test')
+
+    compile 'com.google.cloud.tools:jib-core:0.1.1'
 }
 
 publishing {
@@ -74,8 +76,34 @@ publishing {
     }
 }
 
-jib.to.image = '${registryUrl}/${rootProject.name}:${project.version}'
+// Using jib-core
 
+
+
+// Using jib-gradle-plugin
+jib {
+    from {
+        image = 'openjdk:11-jre-slim'
+    }
+    to {
+        image = "${registryUrl}/${project.group}/${rootProject.name}:${project.version}"
+        auth {
+            username='${nexusUsername}'
+            password='${nexusPassword}'
+        }
+    }
+    // container {
+    //     jvmFlags = ['-Xms512m', '-Xdebug', '-Xmy:flag=jib-rules']
+    //     mainClass = 'DemoApplication.MyApp'
+    //     args = ['some', 'args']
+    //     ports = ['1000', '2000-2003/udp']
+    //     labels = [key1:'value1', key2:'value2']
+    //     format = 'OCI'
+    // }
+}
+
+
+// Using gradle-docker-plugin
 // docker {
 //     url = 'tcp://${dockerbot}:2375'
 //     // url = 'unix:///var/run/docker.sock'  //Docker daemon on linux
