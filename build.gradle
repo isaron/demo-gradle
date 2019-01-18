@@ -9,15 +9,15 @@ buildscript {
     }
     dependencies {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
-        classpath "gradle.plugin.com.google.cloud.tools:jib-gradle-plugin:1.0.0-rc2"
+        // classpath "gradle.plugin.com.google.cloud.tools:jib-gradle-plugin:1.0.0"
         // classpath 'com.bmuschko:gradle-docker-plugin:4.2.0'
     }
 }
 
 plugins {
-  id "org.sonarqube" version "2.6"
+  id "org.sonarqube" version "2.7"
 //   id 'com.bmuschko.docker-remote-api' version '4.2.0'
-//   id "com.google.cloud.tools.jib" version "1.0.0-rc2"
+//   id "com.google.cloud.tools.jib" version "1.0.0"
 }
 
 apply plugin: 'java'
@@ -27,7 +27,7 @@ apply plugin: 'io.spring.dependency-management'
 
 apply plugin: 'maven-publish'
 
-apply plugin: "com.google.cloud.tools.jib"
+// apply plugin: "com.google.cloud.tools.jib"
 // apply plugin: 'com.bmuschko.docker-remote-api'
 
 
@@ -45,6 +45,7 @@ repositories {
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation('org.springframework.boot:spring-boot-starter-data-jpa')
+    implementation('com.h2database:h2')
     implementation('org.springframework.boot:spring-boot-starter-security')
     implementation('org.springframework.boot:spring-boot-starter-web')
     testImplementation('org.springframework.boot:spring-boot-starter-test')
@@ -82,26 +83,26 @@ publishing {
 
 
 // Using jib-gradle-plugin
-jib {
-    from {
-        image = 'openjdk:11-jre-slim'
-    }
-    to {
-        image = "${registryUrl}/${project.group}/${rootProject.name}:${project.version}"
-        auth {
-            username='${nexusUsername}'
-            password='${nexusPassword}'
-        }
-    }
-    // container {
-    //     jvmFlags = ['-Xms512m', '-Xdebug', '-Xmy:flag=jib-rules']
-    //     mainClass = 'DemoApplication.MyApp'
-    //     args = ['some', 'args']
-    //     ports = ['1000', '2000-2003/udp']
-    //     labels = [key1:'value1', key2:'value2']
-    //     format = 'OCI'
-    // }
-}
+// jib {
+//     from {
+//         image = 'openjdk:11-jre-slim'
+//     }
+//     to {
+//         image = "${registryUrl}/${project.group}/${rootProject.name}:${project.version}"
+//         auth {
+//             username='${nexusUsername}'
+//             password='${nexusPassword}'
+//         }
+//     }
+//     // container {
+//     //     jvmFlags = ['-Xms512m', '-Xdebug', '-Xmy:flag=jib-rules']
+//     //     mainClass = 'DemoApplication.MyApp'
+//     //     args = ['some', 'args']
+//     //     ports = ['1000', '2000-2003/udp']
+//     //     labels = [key1:'value1', key2:'value2']
+//     //     format = 'OCI'
+//     // }
+// }
 
 
 // Using gradle-docker-plugin
