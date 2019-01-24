@@ -1,0 +1,6 @@
+apiVersion: skaffold/v1beta3
+kind: Config
+build:
+  artifacts:
+  - image: containers.ssii.com/com.ssii.rdp/demo-gradle
+    jibGradle: {}
