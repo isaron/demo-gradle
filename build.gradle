@@ -11,13 +11,13 @@ buildscript {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
         // classpath "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.7"
         classpath "gradle.plugin.com.google.cloud.tools:jib-gradle-plugin:1.0.0"
-        // classpath 'com.bmuschko:gradle-docker-plugin:4.2.0'
+        classpath 'com.bmuschko:gradle-docker-plugin:4.3.0'
     }
 }
 
 plugins {
   id "org.sonarqube" version "2.7"
-//   id 'com.bmuschko.docker-remote-api' version '4.2.0'
+//   id 'com.bmuschko.docker-remote-api' version '4.3.0'
 //   id "com.google.cloud.tools.jib" version "1.0.0"
 }
 
@@ -29,7 +29,7 @@ apply plugin: 'io.spring.dependency-management'
 apply plugin: 'maven-publish'
 // apply plugin: "org.sonarqube"
 apply plugin: "com.google.cloud.tools.jib"
-// apply plugin: 'com.bmuschko.docker-remote-api'
+apply plugin: 'com.bmuschko.docker-remote-api'
 
 
 group = 'com.ssii.rdp'
@@ -100,58 +100,59 @@ publishing {
 
 
 // ============= Using jib-gradle-plugin ================
-// jib {
-//     from {
-//         image = 'openjdk:11-jre-slim'
-//     }
-//     to {
-//         image = "${registryUrl}/${project.group}/${rootProject.name}:${project.version}"
-//         auth {
-//             username='${nexusUsername}'
-//             password='${nexusPassword}'
-//         }
-//     }
-//     // container {
-//     //     jvmFlags = ['-Xms512m', '-Xdebug', '-Xmy:flag=jib-rules']
-//     //     mainClass = 'com.ssii.rdp.demogradle.DemoGradleApplication'
-//     //     args = ['some', 'args']
-//     //     ports = ['1000', '2000-2003/udp']
-//     //     labels = [key1:'value1', key2:'value2']
-//     //     format = 'OCI'
-//     // }
-// }
+jib {
+    from {
+        image = 'openjdk:11-jre-slim'
+    }
+    to {
+        image = "${registryUrl}/${project.group}/${rootProject.name}:${project.version}"
+        auth {
+            username='${nexusUsername}'
+            password='${nexusPassword}'
+        }
+    }
+    container {
+        jvmFlags = ['-Xms512m', '-Xmx512m', '-Xdebug', '-XX:+UnlockExperimentalVMOptions', '-XX:+UseCGroupMemoryLimitForHeap', '-Xmy:flag=jib-rules']
+        mainClass = 'com.ssii.rdp.demogradle.DemoGradleApplication'
+        // args = ['some', 'args']
+        ports = ['4567', '4567-4570/udp']
+        // labels = [key1:'value1', key2:'value2']
+        format = 'OCI'
+    }
+}
 
+// tasks.build.dependsOn tasks.jib
 
 // ============= Using gradle-docker-plugin ====================
-// docker {
-//     url = 'tcp://${dockerbot}:2375'
-//     // url = 'unix:///var/run/docker.sock'  //Docker daemon on linux
-//     // url = 'tcp://127.0.0.1:2375'         //Docker daemon on windows or linux
+docker {
+    url = 'tcp://${dockerbot}:2375'
+    // url = 'unix:///var/run/docker.sock'  //Docker daemon on linux
+    // url = 'tcp://127.0.0.1:2375'         //Docker daemon on windows or linux
 
-//     registryCredentials {
-//         url = '${registryUrl}'
-//         username = '${nexusUsername}'
-//         password = '${nexusPassword}'
-//     }
-// }
+    registryCredentials {
+        url = '${registryUrl}'
+        username = '${nexusUsername}'
+        password = '${nexusPassword}'
+    }
+}
 
-// import com.bmuschko.gradle.docker.tasks.image.*
+import com.bmuschko.gradle.docker.tasks.image.*
 
-// task getDockerfile(type: Dockerfile) {
-//     destFile = project.file('Dockerfile')
-// }
+task getDockerfile(type: Dockerfile) {
+    destFile = project.file('Dockerfile')
+}
 
-// task buildImage(type: DockerBuildImage) {
-//     dependsOn getDockerfile
-//     inputDir = getDockerfile.destFile.get().asFile.parentFile
-//     tags.add('${registryUrl}/${rootProject.name}:${project.version}')
-// }
+task buildImage(type: DockerBuildImage) {
+    dependsOn getDockerfile
+    inputDir = getDockerfile.destFile.get().asFile.parentFile
+    tags.add('${registryUrl}/${rootProject.name}:${project.version}')
+}
 
-// task pushImage(type: DockerPushImage) {
-//     dependsOn buildImage
-//     imageName = buildImage.tags.get().first()
-// }
+task pushImage(type: DockerPushImage) {
+    dependsOn buildImage
+    imageName = buildImage.tags.get().first()
+}
 
-// task docker {
-//     dependsOn pushImage
-// }
+task docker {
+    dependsOn pushImage
+}
