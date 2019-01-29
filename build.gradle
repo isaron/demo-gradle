@@ -102,13 +102,17 @@ publishing {
 // ============= Using jib-gradle-plugin ================
 jib {
     from {
-        image = 'openjdk:11-jre-slim'
+        image = "${registryUrl}/base/openjdk:11-jre-slim"
+        auth {
+            username = "${nexusUsername}"
+            password = "${nexusPassword}"
+        }
     }
     to {
         image = "${registryUrl}/${project.group}/${rootProject.name}:${project.version}"
         auth {
-            username='${nexusUsername}'
-            password='${nexusPassword}'
+            username = "${nexusUsername}"
+            password = "${nexusPassword}"
         }
     }
     container {
