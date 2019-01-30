@@ -95,11 +95,11 @@ publishing {
 }
 
 
-// ============= Using jib-core ====================
+// ============= Using jib-core without Docker daemon ====================
 
 
 
-// ============= Using jib-gradle-plugin ================
+// ============= Using jib-gradle-plugin without Docker daemon ================
 jib {
     from {
         image = "${registryUrl}/base/openjdk:11-jre-slim"
@@ -123,11 +123,12 @@ jib {
         // labels = [key1:'value1', key2:'value2']
         format = 'OCI'
     }
+    // allowInsecureRegistries = true
 }
 
 // tasks.build.dependsOn tasks.jib
 
-// ============= Using gradle-docker-plugin ====================
+// ============= Using gradle-docker-plugin with Docker daemon ====================
 docker {
     url = 'tcp://${dockerbot}:2375'
     // url = 'unix:///var/run/docker.sock'  //Docker daemon on linux
