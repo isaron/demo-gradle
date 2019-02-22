@@ -1,4 +1,4 @@
-apiVersion: skaffold/v1beta3
+apiVersion: skaffold/v1beta5
 kind: Config
 build:
   artifacts:
@@ -22,8 +22,8 @@ build:
     #   # target: stageName
 
     # Using the Jib plugin for Gradle.
-    jibGradle: {}
-      # project: projectname
+    jibGradle: 
+      project: ""
   
   local:
     # false by default for local clusters, true for remote clusters
