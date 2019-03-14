@@ -33,7 +33,8 @@ pipeline {
       }
       steps {
         sh './gradlew publish'
-        sh './gradlew docker'
+        // sh './gradlew docker'
+        sh './gradlew jib'
       }
     }
     stage('Deploy') {
