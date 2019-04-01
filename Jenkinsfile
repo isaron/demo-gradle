@@ -1,16 +1,15 @@
 pipeline {
-  agent {
-    node {
-      label 'default'
-    }
-
-  }
+  agent any
   stages {
     stage('Checkout') {
       steps {
         // checkout([$class: 'GitSCM',branches:[[name:'*/master']],doGenerateSubmoduleConfigurations:false,xtensions:[],submoduleCfg:[],userRemoteConfigs:[[credentialsId:'git:12c5e7bd0e763bbeffcbd5e1bcbc7e010014e7c083c3e78474e99fccbbe68237',url:'https://gitea.ssii.com/RDP/demo-gradle.git']]])
         checkout scm
-        
+      }
+    }
+    stage('Clean') {
+      steps {
+        sh './gradlew clean'
       }
     }
     stage('Test') {
