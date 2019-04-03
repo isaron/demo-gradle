@@ -38,8 +38,7 @@ pipeline {
       //     filename 'Dockerfile'
       //   }
       // }
-      steps {
-        parallel {
+      parallel {
         stage('Publish Jar') {
           steps {
             sh './gradlew publish'
@@ -50,10 +49,6 @@ pipeline {
             sh './gradlew jib'
           }
         }
-      }
-        sh './gradlew publish'
-        // sh './gradlew docker'
-        sh './gradlew jib'
       }
     }
     // stage('Deploy') {
