@@ -9,14 +9,14 @@ pipeline {
     }
     stage('Clean') {
       steps {
-        sh './gradlew clean'
+        gradlew('clean')
       }
     }
     stage('Test') {
       parallel {
         stage('Integration Tests') {
           steps {
-            sh './gradlew test'
+            gradlew('test')
           }
         }
         stage('Code Analysis') {
@@ -29,7 +29,7 @@ pipeline {
     }
     stage('Build') {
       steps {
-        sh './gradlew build'
+        gradlew('build')
       }
     }
     stage('Publish') {
@@ -41,12 +41,12 @@ pipeline {
       parallel {
         stage('Publish Jar') {
           steps {
-            sh './gradlew publish'
+            gradlew('publish')
           }
         }
         stage('Publish Docker image') {
           steps {
-            sh './gradlew jib'
+            gradlew('jib')
           }
         }
       }
@@ -57,4 +57,8 @@ pipeline {
     //   }
     // }
   }
+}
+
+def gradlew(String... args) {
+  sh "./gradlew ${args.join(' ')} -s"
 }
