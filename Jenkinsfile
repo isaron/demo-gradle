@@ -30,7 +30,7 @@ pipeline {
     }
     stage('Build') {
       steps {
-        gradlew('build')
+        gradlew('bootJar')
       }
     }
     stage('Publish') {
