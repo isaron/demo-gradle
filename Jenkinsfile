@@ -26,7 +26,7 @@ pipeline {
         //     waitForQualityGate true
         //   }
         // }
-      }
+      // }
     }
     stage('Build') {
       steps {
