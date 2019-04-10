@@ -14,18 +14,18 @@ pipeline {
       }
     }
     stage('Test') {
-      parallel {
-        stage('Integration Tests') {
+      // parallel {
+        // stage('Integration Tests') {
           steps {
             gradlew('test')
           }
-        }
-        stage('Code Analysis') {
-          steps {
-            sh './gradlew sonarqube -Dsonar.host.url=https://sonar.ssii.com -Dsonar.login=78e4c996818567e429196c8076dee35166351f1e'
-            waitForQualityGate true
-          }
-        }
+        // }
+        // stage('Code Analysis') {
+        //   steps {
+        //     sh './gradlew sonarqube -Dsonar.host.url=https://sonar.ssii.com -Dsonar.login=78e4c996818567e429196c8076dee35166351f1e'
+        //     waitForQualityGate true
+        //   }
+        // }
       }
     }
     stage('Build') {
