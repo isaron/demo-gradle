@@ -22,7 +22,7 @@ pipeline {
         // }
         // stage('Code Analysis') {
         //   steps {
-        //     sh './gradlew sonarqube -Dsonar.host.url=https://sonar.ssii.com -Dsonar.login=78e4c996818567e429196c8076dee35166351f1e'
+        //     sh './gradlew sonarqube -Dsonar.projectKey=demo-gradle -Dsonar.host.url=https://sonar.ssii.com -Dsonar.login=7dde01fab5c7cf5f2d8c6d955d0b57951b1a7b07'
         //     waitForQualityGate true
         //   }
         // }
