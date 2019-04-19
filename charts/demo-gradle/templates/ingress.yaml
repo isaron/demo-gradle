@@ -1,17 +1,27 @@
 {{- if .Values.ingress.enabled -}}
-apiVersion: extensions/v1beta1
+apiVersion: {{ .Values.ingress.apiVersion }}
 kind: Ingress
 metadata:
   name: {{ template "fullname" . }}
   labels:
     chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+{{- if .Values.ingress.labels }}
+{{ toYaml .Values.ingress.labels | indent 4 }}
+{{- end }}
+{{- if .Values.ingress.annotations }}
+  annotations:
+{{ toYaml .Values.ingress.annotations | indent 4 }}
+{{- end }}
 spec:
   rules:
-  - host: {{ .Release.Name }}.{{ .Values.basedomain }}
+  - host: {{ .Release.Name }}.{{ .Values.baseDomain }}
     http:
       paths:
       - path: /
         backend:
           serviceName: {{ template "fullname" . }}
-          servicePort: {{ .Values.service.externalPort }}
+          servicePort: {{ .Values.service.ports.port }}
+  tls:
+{{ toYaml .Values.Master.ingress.tls | indent 2 }}
+{{- end -}}
 {{- end -}}

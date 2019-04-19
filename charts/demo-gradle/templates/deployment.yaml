@@ -1,12 +1,24 @@
-apiVersion: extensions/v1beta1
+{{- if .Capabilities.APIVersions.Has "apps/v1" }}
+apiVersion: apps/v1
+{{- else }}
+apiVersion: apps/v1beta1
+{{- end }}
 kind: Deployment
 metadata:
   name: {{ template "fullname" . }}
   labels:
+    heritage: {{ .Release.Service | quote }}
+    release: {{ .Release.Name | quote }}
     draft: {{ default "draft-app" .Values.draft }}
     chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
 spec:
   replicas: {{ .Values.replicaCount }}
+  strategy:
+    type: {{ if .Values.Persistence.Enabled }}Recreate{{ else }}RollingUpdate{{ end }}
+    rollingUpdate:
+    {{- if not .Values.Persistence.Enabled }}
+{{ toYaml .Values.RollingUpdate | indent 6 }}
+{{- end }}
   template:
     metadata:
       annotations:
@@ -14,12 +26,58 @@ spec:
       labels:
         draft: {{ default "draft-app" .Values.draft }}
         app: {{ template "fullname" . }}
+        heritage: {{ .Release.Service | quote }}
+        release: {{ .Release.Name | quote }}
     spec:
+      {{- if .Values.NodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.NodeSelector | indent 8 }}
+      {{- end }}
+{{- if .Values.Tolerations }}
+      serviceAccountName: {{ if .Values.rbac.install }}{{ template "fullname" . }}{{ else }}"{{ .Values.rbac.serviceAccountName }}"{{ end }}
       containers:
       - name: {{ .Chart.Name }}
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ImagePullSecret: "{{ .Values.image.ImagePullSecret }}"
+        env:
+          - name: JAVA_OPTS
+            value: {{ default "" .Values.service.JavaOpts | quote }}
         ports:
         - containerPort: {{ .Values.service.internalPort }}
+          name: {{ .Values.service.portName }}
+{{- if .Values.HealthProbes.Enabled }}
+          livenessProbe:
+            httpGet:
+              path: "{{ default "" .Values.service.UriPrefix }}"
+              port: http
+            initialDelaySeconds: {{ .Values.HealthProbes.HealthProbesLivenessTimeout }}
+            timeoutSeconds: 5
+            failureThreshold: {{ .Values.HealthProbes.HealthProbeLivenessFailureThreshold }}
+          readinessProbe:
+            httpGet:
+              path: "{{ default "" .Values.service.UriPrefix }}"
+              port: http
+            initialDelaySeconds: {{ .Values.HealthProbes.HealthProbesReadinessTimeout }}
+            periodSeconds: {{ .Values.HealthProbes.HealthProbeReadinessPeriodSeconds }}
+{{- end }}
         resources:
+{{ if or .Values.resources.Cpu .Values.resources.Memory }}
+          requests:
+            cpu: "{{ .Values.resources.Cpu }}"
+            memory: "{{ .Values.resources.Memory }}"
+{{ else }}
 {{ toYaml .Values.resources | indent 12 }}
+{{ end }}
+          volumeMounts:
+{{- if .Values.Persistence.mounts }}
+{{ toYaml .Values.Persistence.mounts | indent 12 }}
+{{- end }}
+            - mountPath: /tmp
+              name: tmp
+      volumes:
+{{- if .Values.Persistence.volumes }}
+{{ tpl (toYaml .Values.Persistence.volumes | indent 6) . }}
+{{- end }}
+      - name: tmp
+        emptyDir: {}

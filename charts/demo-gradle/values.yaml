@@ -1,20 +1,96 @@
 # Default values for Gradle projects.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
+buildID: master
 replicaCount: 1
+RollingUpdate: {}
+  # maxSurge: 1
+  # maxUnavailable: 25%
+nodeSelector:
+  beta.kubernetes.io/os: linux
+  
 image:
+  repository:
+  tag:
   pullPolicy: IfNotPresent
+  pullSecret: nexus-docker
+
+HealthProbes: 
+  Enabled: true
+  HealthProbesLivenessTimeout: 90
+  HealthProbesReadinessTimeout: 60
+  HealthProbeReadinessPeriodSeconds: 10
+  HealthProbeLivenessFailureThreshold: 12
+
 service:
-  name: java
+  name: demo-gradle
+  # annotations:
+  JavaOpts: "-Xms512m -Xmx512m -Xdebug -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap"
+  UriPrefix: "/"
+  baseDomain: demo-gradle.ssii.com
   type: ClusterIP
-  externalPort: 80
-  internalPort: 4567
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+      name: http
+
 resources:
   limits:
-    cpu: 100m
-    memory: 128Mi
+    cpu: 200m
+    memory: 512Mi
   requests:
-    cpu: 100m
-    memory: 128Mi
+    cpu: 500m
+    memory: 1024Mi
+
 ingress:
   enabled: false
+  # For Kubernetes v1.14+, use 'networking.k8s.io/v1beta1'
+  apiVersion: extensions/v1beta1
+  labels: {}
+  annotations: 
+    kubernetes.io/ingress.class: nginx
+    certmanager.k8s.io/cluster-issuer: ca-issuer
+    ingress.kubernetes.io/ssl-redirect: "false"
+    # kubernetes.io/tls-acme: "true"
+  hostName: demo-gradle.ssii.com
+  tls:
+  - secretName: demo-gradle-tls
+    hosts:
+      - demo-gradle.ssii.com
+
+Persistence:
+  Enabled: false
+  ## A manually managed Persistent Volume and Claim
+  ## Requires Persistence.Enabled: true
+  ## If defined, PVC must be created manually before volume will be bound
+  # ExistingClaim:
+  ## jenkins data Persistent Volume Storage Class
+  ## If defined, storageClassName: <storageClass>
+  ## If set to "-", storageClassName: "", which disables dynamic provisioning
+  ## If undefined (the default) or set to null, no storageClassName spec is
+  ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
+  ##   GKE, AWS & OpenStack)
+  ##
+  # StorageClass: "-"
+  Annotations: {}
+  AccessMode: ReadWriteOnce
+  Size: 1Gi
+  volumes:
+  #  - name: nothing
+  #    emptyDir: {}
+  mounts:
+  #  - mountPath: /var/nothing
+  #    name: nothing
+  #    readOnly: true
+
+rbac:
+  install: true
+  serviceAccountName: 
+  serviceAccountAnnotations: {}
+  # Role reference
+  roleRef: cluster-admin
+  # Role kind (Role or ClusterRole)
+  roleKind: ClusterRole
+  # Role binding kind (RoleBinding or ClusterRoleBinding)
+  roleBindingKind: ClusterRoleBinding

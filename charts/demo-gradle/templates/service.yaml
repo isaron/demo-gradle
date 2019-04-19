@@ -3,13 +3,20 @@ kind: Service
 metadata:
   name: {{ template "fullname" . }}
   labels:
+    heritage: {{.Release.Service | quote }}
+    release: {{.Release.Name | quote }}
     chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: {{ .Release.Name }}.{{ .Values.service.baseDomain }}
+{{- if .Values.Master.ServiceAnnotations }}
+{{ toYaml .Values.Master.ServiceAnnotations | indent 4 }}
+{{- end }}
 spec:
   type: {{ .Values.service.type }}
   ports:
-  - port: {{ .Values.service.externalPort }}
-    targetPort: {{ .Values.service.internalPort }}
-    protocol: TCP
-    name: {{ .Values.service.name }}
+  - port: {{ .Values.service.ports.port }}
+    targetPort: {{ .Values.service.ports.targetPort }}
+    protocol: {{ .Values.service.ports.protocol }}
+    name: {{ .Values.service.ports.name }}
   selector:
     app: {{ template "fullname" . }}

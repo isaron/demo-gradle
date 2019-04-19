@@ -62,7 +62,7 @@ dependencies {
 sonarqube {
     properties {
         property "sonar.host.url", 'http://sonar.ssii.com'
-        property "sonar.login", '523100d2f26ce10e335429aa7dd075cebf28cb9c'
+        property "sonar.login", '05e82e5b6bd6a9503972de695897d701b2965546'
         property "sonar.sourceEncoding", "UTF-8"
         property 'sonar.projectName', '${rootProject.name}'
     }
@@ -119,7 +119,7 @@ jib {
         jvmFlags = ['-Xms512m', '-Xmx512m', '-Xdebug', '-XX:+UnlockExperimentalVMOptions', '-XX:+UseCGroupMemoryLimitForHeap', '-Xmy:flag=jib-rules']
         mainClass = 'com.ssii.rdp.demogradle.DemoGradleApplication'
         // args = ['some', 'args']
-        ports = ['4567', '4567-4570/udp']
+        ports = ['8080']
         // labels = [key1:'value1', key2:'value2']
         format = 'OCI'
     }

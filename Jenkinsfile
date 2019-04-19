@@ -7,22 +7,30 @@ pipeline {
     //     checkout scm
     //   }
     // }
-    stage('Clean') {
+    stage('Prepare') {
       steps {
+        script {
+          build_tag = sh(returnStdout: true, script: 'git rev-parse --short HEAD').trim()
+          if (env.BRANCH_NAME != 'master') {
+            build_tag = "${env.BRANCH_NAME}-${build_tag}"
+          }
+        }
         sh 'chmod +x ./gradlew'
-        gradlew('clean')
+        // gradlew('clean')
+        sh './gradlew clean'
       }
     }
     stage('Test') {
       // parallel {
         // stage('Integration Tests') {
           steps {
-            gradlew('test')
+            // gradlew('test')
+            sh './gradlew test'
           }
         // }
         // stage('Code Analysis') {
         //   steps {
-        //     sh './gradlew sonarqube -Dsonar.projectKey=demo-gradle -Dsonar.host.url=https://sonar.ssii.com -Dsonar.login=7dde01fab5c7cf5f2d8c6d955d0b57951b1a7b07'
+        //     sh './gradlew sonarqube -Dsonar.projectKey=demo-gradle -Dsonar.host.url=https://sonar.ssii.com -Dsonar.login=05e82e5b6bd6a9503972de695897d701b2965546'
         //     waitForQualityGate true
         //   }
         // }
@@ -30,7 +38,8 @@ pipeline {
     }
     stage('Build') {
       steps {
-        gradlew('bootJar')
+        // gradlew('bootJar')
+        sh './gradlew bootJar'
       }
     }
     stage('Publish') {
@@ -42,24 +51,77 @@ pipeline {
       parallel {
         stage('Publish Jar') {
           steps {
-            gradlew('publish')
+            // gradlew('publish')
+            sh './gradlew publish'
           }
         }
         stage('Publish Docker image') {
           steps {
-            gradlew('jib')
+            // gradlew('jib')
+            sh './gradlew jib'
+          }
+        }
+        stage('Push Helm chart') {
+          steps {
+            if (env.BRANCH_NAME != 'staging' || env.BRANCH_NAME != 'master' || env.BRANCH_NAME == null) {
+              sh 'helm push ./charts/demo-gradle --version='${build_tag}' chartmuseum'
+            }
+            if (env.BRANCH_NAME == 'staging' || env.BRANCH_NAME == null) {
+              sh 'helm push ./charts/demo-gradle --version='${build_tag}-staging' chartmuseum'
+            }
+            if (env.BRANCH_NAME == 'master' || env.BRANCH_NAME == null) {
+              sh 'helm push ./charts/demo-gradle chartmuseum'
+            }
           }
         }
       }
     }
-    // stage('Deploy') {
-    //   steps {
-    //     sh './gradle deploy'
-    //   }
-    // }
+    stage('Deploy') {
+      when {
+        expression {
+          currentBuild.result == null || currentBuild.result == 'SUCCESS' // 判断是否发生测试失败
+        }
+      }
+      parallel {
+        stage('Deploy - Dev') {
+          steps {
+            if (env.BRANCH_NAME == 'dev' || env.BRANCH_NAME == null) {
+              sh 'helm upgrade --install demo-gradle --version ${build_tag} --namespace dev chartmuseum/demo-gradle'
+            }
+          }
+        }
+        stage('Deploy - Testing') {
+          steps {
+            if (env.BRANCH_NAME == 'testing' || env.BRANCH_NAME == null) {
+              sh 'helm upgrade --install demo-gradle --version ${build_tag} --namespace testing chartmuseum/demo-gradle'
+            }
+          }
+        }
+        stage('Deploy - Staging') {
+          steps {
+            if (env.BRANCH_NAME == 'staging' || env.BRANCH_NAME == null) {
+              timeout(time: 10, unit: 'MINUTES') {
+                input '确认要部署Staging环境吗？'
+              }
+            }
+            sh 'helm upgrade --install demo-gradle --version ${build_tag}-staging --namespace staging chartmuseum/demo-gradle'
+          }
+        }
+        stage('Deploy - Prod') {
+          steps {
+            if (env.BRANCH_NAME == 'master' || env.BRANCH_NAME == null) {
+              timeout(time: 10, unit: 'MINUTES') {
+                input '确认要部署Prod环境吗？'
+              }
+            }
+            sh 'helm upgrade --install demo-gradle --namespace production chartmuseum/demo-gradle'
+          }
+        }
+      }
+    }
   }
 }
 
-def gradlew(String... args) {
-  sh "./gradlew ${args.join(' ')} -s"
-}
+// def gradlew(String... args) {
+//   sh "./gradlew ${args.join(' ')} -s"
+// }
