@@ -1,3 +1,9 @@
+def project = 'com.ssii.rdp'
+def appName = 'demo-gradle'
+def feSvcName = "${appName}-frontend"
+def registry = 'containers.ssii.com'
+// def imageTag = "${registry}/${project}/${appName}:${env.BRANCH_NAME}.${env.BUILD_NUMBER}"
+
 pipeline {
   agent any
   stages {
@@ -15,22 +21,20 @@ pipeline {
             build_tag = "${env.BRANCH_NAME}-${build_tag}"
           }
         }
-        sh 'chmod +x ./gradlew'
-        // gradlew('clean')
-        sh './gradlew clean'
+        sh("chmod +x ./gradlew")
+        sh("./gradlew clean")
       }
     }
     stage('Test') {
       // parallel {
         // stage('Integration Tests') {
           steps {
-            // gradlew('test')
-            sh './gradlew test'
+            sh("./gradlew test")
           }
         // }
         // stage('Code Analysis') {
         //   steps {
-        //     sh './gradlew sonarqube -Dsonar.projectKey=demo-gradle -Dsonar.host.url=https://sonar.ssii.com -Dsonar.login=05e82e5b6bd6a9503972de695897d701b2965546'
+        //     sh("./gradlew sonarqube -Dsonar.projectKey=demo-gradle -Dsonar.host.url=https://sonar.ssii.com -Dsonar.login=05e82e5b6bd6a9503972de695897d701b2965546")
         //     waitForQualityGate true
         //   }
         // }
@@ -38,8 +42,7 @@ pipeline {
     }
     stage('Build') {
       steps {
-        // gradlew('bootJar')
-        sh './gradlew bootJar'
+        sh("./gradlew bootJar")
       }
     }
     stage('Publish') {
@@ -51,26 +54,25 @@ pipeline {
       parallel {
         stage('Publish Jar') {
           steps {
-            // gradlew('publish')
-            sh './gradlew publish'
+            sh("./gradlew publish")
           }
         }
         stage('Publish Docker image') {
           steps {
-            // gradlew('jib')
-            sh './gradlew jib'
+            sh("./gradlew jib")
           }
         }
         stage('Push Helm chart') {
           steps {
             if (env.BRANCH_NAME != 'staging' || env.BRANCH_NAME != 'master' || env.BRANCH_NAME == null) {
-              sh 'helm push ./charts/demo-gradle --version='${build_tag}' chartmuseum'
+              sh("sed -i 's#gcr.io/cloud-solutions-images/gceme:1.0.0#${imageTag}#' ./charts/demo-gradle/values.yaml")
+              sh("helm push ./charts/demo-gradle --version='${build_tag}' chartmuseum")
             }
             if (env.BRANCH_NAME == 'staging' || env.BRANCH_NAME == null) {
-              sh 'helm push ./charts/demo-gradle --version='${build_tag}-staging' chartmuseum'
+              sh("helm push ./charts/demo-gradle --version='${build_tag}-staging' chartmuseum")
             }
             if (env.BRANCH_NAME == 'master' || env.BRANCH_NAME == null) {
-              sh 'helm push ./charts/demo-gradle chartmuseum'
+              sh("helm push ./charts/demo-gradle chartmuseum")
             }
           }
         }
@@ -86,14 +88,14 @@ pipeline {
         stage('Deploy - Dev') {
           steps {
             if (env.BRANCH_NAME == 'dev' || env.BRANCH_NAME == null) {
-              sh 'helm upgrade --install demo-gradle --version ${build_tag} --namespace dev chartmuseum/demo-gradle'
+              sh("helm upgrade --install demo-gradle --version ${build_tag} --namespace dev chartmuseum/demo-gradle")
             }
           }
         }
         stage('Deploy - Testing') {
           steps {
             if (env.BRANCH_NAME == 'testing' || env.BRANCH_NAME == null) {
-              sh 'helm upgrade --install demo-gradle --version ${build_tag} --namespace testing chartmuseum/demo-gradle'
+              sh("helm upgrade --install demo-gradle --version ${build_tag} --namespace testing chartmuseum/demo-gradle")
             }
           }
         }
@@ -104,7 +106,7 @@ pipeline {
                 input '确认要部署Staging环境吗？'
               }
             }
-            sh 'helm upgrade --install demo-gradle --version ${build_tag}-staging --namespace staging chartmuseum/demo-gradle'
+            sh("helm upgrade --install demo-gradle --version ${build_tag}-staging --namespace staging chartmuseum/demo-gradle")
           }
         }
         stage('Deploy - Prod') {
@@ -114,14 +116,10 @@ pipeline {
                 input '确认要部署Prod环境吗？'
               }
             }
-            sh 'helm upgrade --install demo-gradle --namespace production chartmuseum/demo-gradle'
+            sh("helm upgrade --install demo-gradle --namespace production chartmuseum/demo-gradl")
           }
         }
       }
     }
   }
 }
-
-// def gradlew(String... args) {
-//   sh "./gradlew ${args.join(' ')} -s"
-// }
