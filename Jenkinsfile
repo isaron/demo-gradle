@@ -1,7 +1,7 @@
 def project = 'com.ssii.rdp'
 def appName = 'demo-gradle'
-def feSvcName = "${appName}-frontend"
-def registry = 'containers.ssii.com'
+// def feSvcName = "${appName}-frontend"
+// def registry = 'containers.ssii.com'
 // def imageTag = "${registry}/${project}/${appName}:${env.BRANCH_NAME}.${env.BUILD_NUMBER}"
 
 pipeline {
@@ -65,10 +65,11 @@ pipeline {
         stage('Push Helm chart') {
           steps {
             if (env.BRANCH_NAME != 'staging' || env.BRANCH_NAME != 'master' || env.BRANCH_NAME == null) {
-              sh("sed -i 's#gcr.io/cloud-solutions-images/gceme:1.0.0#${imageTag}#' ./charts/demo-gradle/values.yaml")
+              sh("sed -i 's#tag: */#tag: ${build_tag}#' ./charts/demo-gradle/values.yaml")
               sh("helm push ./charts/demo-gradle --version='${build_tag}' chartmuseum")
             }
             if (env.BRANCH_NAME == 'staging' || env.BRANCH_NAME == null) {
+              sh("sed -i 's#tag: */#tag: ${build_tag}#' ./charts/demo-gradle/values.yaml")
               sh("helm push ./charts/demo-gradle --version='${build_tag}-staging' chartmuseum")
             }
             if (env.BRANCH_NAME == 'master' || env.BRANCH_NAME == null) {

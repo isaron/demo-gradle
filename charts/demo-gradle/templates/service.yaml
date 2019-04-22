@@ -6,10 +6,9 @@ metadata:
     heritage: {{.Release.Service | quote }}
     release: {{.Release.Name | quote }}
     chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+{{- if .Values.service.annotations }}
   annotations:
-    external-dns.alpha.kubernetes.io/hostname: {{ .Release.Name }}.{{ .Values.service.baseDomain }}
-{{- if .Values.Master.ServiceAnnotations }}
-{{ toYaml .Values.Master.ServiceAnnotations | indent 4 }}
+{{ toYaml .Values.service.annotations | indent 4 }}
 {{- end }}
 spec:
   type: {{ .Values.service.type }}

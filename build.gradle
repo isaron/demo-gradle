@@ -28,13 +28,13 @@ apply plugin: 'io.spring.dependency-management'
 
 apply plugin: 'maven-publish'
 // apply plugin: "org.sonarqube"
-apply plugin: "com.google.cloud.tools.jib"
+apply plugin: 'com.google.cloud.tools.jib'
 apply plugin: 'com.bmuschko.docker-remote-api'
 
 
 group = 'com.ssii.rdp'
 description = "Demo spring-boot project with Gradle."
-version = '0.0.1-SNAPSHOT'
+version = '0.0.1'
 sourceCompatibility = 1.8
 
 repositories {

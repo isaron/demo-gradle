@@ -2,6 +2,7 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 buildID: master
+# buildID: testing-xxxxxx
 replicaCount: 1
 RollingUpdate: {}
   # maxSurge: 1
@@ -10,9 +11,9 @@ nodeSelector:
   beta.kubernetes.io/os: linux
   
 image:
-  repository:
-  tag:
-  pullPolicy: IfNotPresent
+  repository: containers.ssii.com/com.ssii.rdp/demo-gradle
+  tag: 0.0.1-SNAPSHOT
+  pullPolicy: Always
   pullSecret: nexus-docker
 
 HealthProbes: 
@@ -24,10 +25,10 @@ HealthProbes:
 
 service:
   name: demo-gradle
-  # annotations:
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: demo-gradle.rdp.ssii.com
   JavaOpts: "-Xms512m -Xmx512m -Xdebug -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap"
   UriPrefix: "/"
-  baseDomain: demo-gradle.ssii.com
   type: ClusterIP
   ports:
     - protocol: TCP
@@ -53,11 +54,12 @@ ingress:
     certmanager.k8s.io/cluster-issuer: ca-issuer
     ingress.kubernetes.io/ssl-redirect: "false"
     # kubernetes.io/tls-acme: "true"
-  hostName: demo-gradle.ssii.com
+  baseDomain: rdp.ssii.com
+  hostName: demo-gradle.rdp.ssii.com
   tls:
   - secretName: demo-gradle-tls
     hosts:
-      - demo-gradle.ssii.com
+      - demo-gradle.rdp.ssii.com
 
 Persistence:
   Enabled: false

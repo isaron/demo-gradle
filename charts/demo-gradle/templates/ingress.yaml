@@ -14,7 +14,7 @@ metadata:
 {{- end }}
 spec:
   rules:
-  - host: {{ .Release.Name }}.{{ .Values.baseDomain }}
+  - host: {{ .Release.Name }}.{{ .Values.ingress.baseDomain }}
     http:
       paths:
       - path: /
@@ -22,6 +22,6 @@ spec:
           serviceName: {{ template "fullname" . }}
           servicePort: {{ .Values.service.ports.port }}
   tls:
-{{ toYaml .Values.Master.ingress.tls | indent 2 }}
+{{ toYaml .Values.ingress.tls | indent 2 }}
 {{- end -}}
 {{- end -}}
