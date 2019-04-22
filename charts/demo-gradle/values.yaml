@@ -3,6 +3,8 @@
 # Declare variables to be passed into your templates.
 buildID: master
 # buildID: testing-xxxxxx
+prodReady: true
+
 replicaCount: 1
 RollingUpdate: {}
   # maxSurge: 1
@@ -25,16 +27,16 @@ HealthProbes:
 
 service:
   name: demo-gradle
-  annotations:
-    external-dns.alpha.kubernetes.io/hostname: demo-gradle.rdp.ssii.com
+  annotations: {}
+    # external-dns.alpha.kubernetes.io/hostname: demo-gradle.rdp.ssii.com
   JavaOpts: "-Xms512m -Xmx512m -Xdebug -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap"
   UriPrefix: "/"
   type: ClusterIP
   ports:
-    - protocol: TCP
+    - name: http-demo
       port: 8080
       targetPort: 8080
-      name: http
+      protocol: TCP
 
 resources:
   limits:
@@ -54,7 +56,7 @@ ingress:
     certmanager.k8s.io/cluster-issuer: ca-issuer
     ingress.kubernetes.io/ssl-redirect: "false"
     # kubernetes.io/tls-acme: "true"
-  baseDomain: rdp.ssii.com
+  # baseDomain: rdp.ssii.com
   hostName: demo-gradle.rdp.ssii.com
   tls:
   - secretName: demo-gradle-tls
@@ -79,12 +81,12 @@ Persistence:
   AccessMode: ReadWriteOnce
   Size: 1Gi
   volumes:
-  #  - name: nothing
-  #    emptyDir: {}
+    # - name: nothing
+    #   emptyDir: {}
   mounts:
-  #  - mountPath: /var/nothing
-  #    name: nothing
-  #    readOnly: true
+    # - mountPath: /var/nothing
+    #   name: nothing
+    #   readOnly: true
 
 rbac:
   install: true

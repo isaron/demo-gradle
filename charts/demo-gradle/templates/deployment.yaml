@@ -33,7 +33,6 @@ spec:
       nodeSelector:
 {{ toYaml .Values.NodeSelector | indent 8 }}
       {{- end }}
-{{- if .Values.Tolerations }}
       serviceAccountName: {{ if .Values.rbac.install }}{{ template "fullname" . }}{{ else }}"{{ .Values.rbac.serviceAccountName }}"{{ end }}
       containers:
       - name: {{ .Chart.Name }}
@@ -69,12 +68,12 @@ spec:
 {{ else }}
 {{ toYaml .Values.resources | indent 12 }}
 {{ end }}
-          volumeMounts:
+        volumeMounts:
 {{- if .Values.Persistence.mounts }}
 {{ toYaml .Values.Persistence.mounts | indent 12 }}
 {{- end }}
-            - mountPath: /tmp
-              name: tmp
+          - mountPath: /tmp
+            name: tmp
       volumes:
 {{- if .Values.Persistence.volumes }}
 {{ tpl (toYaml .Values.Persistence.volumes | indent 6) . }}

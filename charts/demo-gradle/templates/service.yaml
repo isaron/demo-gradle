@@ -6,16 +6,21 @@ metadata:
     heritage: {{.Release.Service | quote }}
     release: {{.Release.Name | quote }}
     chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
-{{- if .Values.service.annotations }}
   annotations:
+{{- if .Values.prodReady }}
+    external-dns.alpha.kubernetes.io/hostname: {{ .Values.ingress.hostName }}
+{{- else }}
+    external-dns.alpha.kubernetes.io/hostname: {{ .Release.Name }}.{{ .Values.ingress.hostName }}
+{{- end  }}
+{{- if .Values.service.annotations }}
 {{ toYaml .Values.service.annotations | indent 4 }}
 {{- end }}
 spec:
   type: {{ .Values.service.type }}
   ports:
-  - port: {{ .Values.service.ports.port }}
-    targetPort: {{ .Values.service.ports.targetPort }}
-    protocol: {{ .Values.service.ports.protocol }}
-    name: {{ .Values.service.ports.name }}
+    - name: {{ .Values.service.ports.name }}
+      port: {{ .Values.service.ports.port }}
+      targetPort: {{ .Values.service.ports.targetPort }}
+      protocol: {{ .Values.service.ports.protocol }}
   selector:
     app: {{ template "fullname" . }}
