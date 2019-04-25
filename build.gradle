@@ -34,7 +34,7 @@ apply plugin: 'com.bmuschko.docker-remote-api'
 
 group = 'com.ssii.rdp'
 description = "Demo spring-boot project with Gradle."
-version = '0.0.1'
+version = '0.0.1-SNAPSHOT'
 sourceCompatibility = 1.8
 
 repositories {

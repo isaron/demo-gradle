@@ -1,9 +1,9 @@
 # Default values for Gradle projects.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
-buildID: master
-# buildID: testing-xxxxxx
-prodReady: true
+# buildID: master
+# buildID: xxxxxxx-testing
+prodReady: false
 
 replicaCount: 1
 RollingUpdate: {}

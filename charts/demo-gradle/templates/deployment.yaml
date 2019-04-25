@@ -22,7 +22,7 @@ spec:
   template:
     metadata:
       annotations:
-        buildID: {{ .Values.buildID }}
+        buildID: {{ .Values.image.tag }}
       labels:
         draft: {{ default "draft-app" .Values.draft }}
         app: {{ template "fullname" . }}

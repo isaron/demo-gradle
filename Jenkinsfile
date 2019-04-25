@@ -1,5 +1,6 @@
 def project = 'com.ssii.rdp'
 def appName = 'demo-gradle'
+def releaseVersion = '0.0.1'
 // def feSvcName = "${appName}-frontend"
 // def registry = 'containers.ssii.com'
 // def imageTag = "${registry}/${project}/${appName}:${env.BRANCH_NAME}.${env.BUILD_NUMBER}"
@@ -20,7 +21,11 @@ pipeline {
           if (env.BRANCH_NAME != 'master') {
             build_tag = "${env.BRANCH_NAME}-${build_tag}"
           }
+          if (env.BRANCH_NAME == $(releaseVersion)) {
+            build_tag = "${env.BRANCH_NAME}"
+          }
         }
+        sh("sed -i 's#version: */#version: ${build_tag}#' ./build.gradle")
         sh("chmod +x ./gradlew")
         sh("./gradlew clean")
       }
@@ -64,16 +69,21 @@ pipeline {
         }
         stage('Push Helm chart') {
           steps {
-            if (env.BRANCH_NAME != 'staging' || env.BRANCH_NAME != 'master' || env.BRANCH_NAME == null) {
+            if (env.BRANCH_NAME != 'staging' || env.BRANCH_NAME != 'master' || env.BRANCH_NAME != $(releaseVersion) || env.BRANCH_NAME == null) {
               sh("sed -i 's#tag: */#tag: ${build_tag}#' ./charts/demo-gradle/values.yaml")
+              sh("sed -i 's#appVersion: */#appVersion: ${build_tag}#' ./charts/demo-gradle/Chart.yaml")
               sh("helm push ./charts/demo-gradle --version='${build_tag}' chartmuseum")
             }
             if (env.BRANCH_NAME == 'staging' || env.BRANCH_NAME == null) {
               sh("sed -i 's#tag: */#tag: ${build_tag}#' ./charts/demo-gradle/values.yaml")
+              sh("sed -i 's#appVersion: */#appVersion: ${build_tag}#' ./charts/demo-gradle/Chart.yaml")
               sh("helm push ./charts/demo-gradle --version='${build_tag}-staging' chartmuseum")
             }
-            if (env.BRANCH_NAME == 'master' || env.BRANCH_NAME == null) {
-              sh("helm push ./charts/demo-gradle chartmuseum")
+            if (env.BRANCH_NAME == 'master' || env.BRANCH_NAME == $(releaseVersion) || env.BRANCH_NAME == null) {
+              sh("sed -i 's#tag: */#tag: ${build_tag}#' ./charts/demo-gradle/values.yaml")
+              sh("sed -i 's#prodReady: */#prodReady: true#' ./charts/demo-gradle/values.yaml")
+              sh("sed -i 's#appVersion: */#appVersion: ${build_tag}#' ./charts/demo-gradle/Chart.yaml")
+              sh("helm push -f ./charts/demo-gradle --version='${build_tag}' chartmuseum")
             }
           }
         }
@@ -112,12 +122,12 @@ pipeline {
         }
         stage('Deploy - Prod') {
           steps {
-            if (env.BRANCH_NAME == 'master' || env.BRANCH_NAME == null) {
+            if (env.BRANCH_NAME == 'master' || env.BRANCH_NAME == $(releaseVersion) || env.BRANCH_NAME == null) {
               timeout(time: 10, unit: 'MINUTES') {
                 input '确认要部署Prod环境吗？'
               }
             }
-            sh("helm upgrade --install demo-gradle --namespace production chartmuseum/demo-gradl")
+            sh("helm upgrade --install demo-gradle --version='${build_tag}' --namespace production chartmuseum/demo-gradl")
           }
         }
       }

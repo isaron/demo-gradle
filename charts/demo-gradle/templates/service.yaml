@@ -10,7 +10,7 @@ metadata:
 {{- if .Values.prodReady }}
     external-dns.alpha.kubernetes.io/hostname: {{ .Values.ingress.hostName }}
 {{- else }}
-    external-dns.alpha.kubernetes.io/hostname: {{ .Release.Name }}.{{ .Values.ingress.hostName }}
+    external-dns.alpha.kubernetes.io/hostname: {{ .Values.image.tag }}.{{ .Values.ingress.hostName }}
 {{- end  }}
 {{- if .Values.service.annotations }}
 {{ toYaml .Values.service.annotations | indent 4 }}

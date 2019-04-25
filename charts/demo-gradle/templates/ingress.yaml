@@ -14,7 +14,7 @@ metadata:
 {{- end }}
 spec:
   rules:
-  - host: {{ .Release.Name }}.{{ .Values.ingress.baseDomain }}
+  - host: {{ .Values.image.tag }}.{{ .Values.ingress.hostName }}
     http:
       paths:
       - path: /
