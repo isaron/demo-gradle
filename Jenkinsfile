@@ -22,7 +22,7 @@ pipeline {
             build_tag = "${env.BRANCH_NAME}"
           }
           sh("sed -i 's#version: */#version: ${build_tag}#' ./build.gradle")
-          if env.BRANCH_NAME != 'staging' && env.BRANCH_NAME != 'master' && env.BRANCH_NAME != $(releaseVersion)) {
+          if (env.BRANCH_NAME != 'staging' && env.BRANCH_NAME != 'master' && env.BRANCH_NAME != $(releaseVersion)) {
             build_tag = "${env.BRANCH_NAME}-${build_tag}"
             sh("sed -i 's#version: */#version: ${build_tag}-SNAPSHOT#' ./build.gradle")
           }
