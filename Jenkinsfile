@@ -125,8 +125,8 @@ pipeline {
                   input '确认要部署Staging环境吗？'
                 }
               }
+              sh("helm upgrade --install demo-gradle --version ${build_tag}-staging --namespace staging chartmuseum/demo-gradle")
             }
-            sh("helm upgrade --install demo-gradle --version ${build_tag}-staging --namespace staging chartmuseum/demo-gradle")
           }
         }
         stage('Deploy - Prod') {
@@ -137,8 +137,8 @@ pipeline {
                   input '确认要部署Prod环境吗？'
                 }
               }
+              sh("helm upgrade --install demo-gradle --version='${build_tag}' --namespace production chartmuseum/demo-gradl")
             }
-            sh("helm upgrade --install demo-gradle --version='${build_tag}' --namespace production chartmuseum/demo-gradl")
           }
         }
       }
