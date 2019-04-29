@@ -18,11 +18,11 @@ pipeline {
       steps {
         script {
           build_tag = sh(returnStdout: true, script: 'git rev-parse --short HEAD').trim()
-          if (env.BRANCH_NAME == $(releaseVersion)) {
+          if (env.BRANCH_NAME == "$(releaseVersion)") {
             build_tag = "${env.BRANCH_NAME}"
           }
           sh("sed -i 's#version: */#version: ${build_tag}#' ./build.gradle")
-          if (env.BRANCH_NAME != 'staging' && env.BRANCH_NAME != 'master' && env.BRANCH_NAME != $(releaseVersion)) {
+          if (env.BRANCH_NAME != 'staging' && env.BRANCH_NAME != 'master' && env.BRANCH_NAME != "$(releaseVersion)") {
             build_tag = "${env.BRANCH_NAME}-${build_tag}"
             sh("sed -i 's#version: */#version: ${build_tag}-SNAPSHOT#' ./build.gradle")
           }
@@ -71,7 +71,7 @@ pipeline {
         stage('Push Helm chart') {
           steps {
             script {
-              if (env.BRANCH_NAME != 'staging' && env.BRANCH_NAME != 'master' && env.BRANCH_NAME != $(releaseVersion) && env.BRANCH_NAME == null) {
+              if (env.BRANCH_NAME != 'staging' && env.BRANCH_NAME != 'master' && env.BRANCH_NAME != "$(releaseVersion)" && env.BRANCH_NAME == null) {
                 sh("sed -i 's#tag: */#tag: ${build_tag}#' ./charts/demo-gradle/values.yaml")
                 sh("sed -i 's#appVersion: */#appVersion: ${build_tag}#' ./charts/demo-gradle/Chart.yaml")
                 sh("helm push ./charts/demo-gradle --version='${build_tag}' chartmuseum")
@@ -81,7 +81,7 @@ pipeline {
                 sh("sed -i 's#appVersion: */#appVersion: ${build_tag}#' ./charts/demo-gradle/Chart.yaml")
                 sh("helm push ./charts/demo-gradle --version='${build_tag}-staging' chartmuseum")
               }
-              if (env.BRANCH_NAME == 'master' || env.BRANCH_NAME == $(releaseVersion) || env.BRANCH_NAME == null) {
+              if (env.BRANCH_NAME == 'master' || env.BRANCH_NAME == "$(releaseVersion)" || env.BRANCH_NAME == null) {
                 sh("sed -i 's#tag: */#tag: ${build_tag}#' ./charts/demo-gradle/values.yaml")
                 sh("sed -i 's#prodReady: */#prodReady: true#' ./charts/demo-gradle/values.yaml")
                 sh("sed -i 's#appVersion: */#appVersion: ${build_tag}#' ./charts/demo-gradle/Chart.yaml")
@@ -132,7 +132,7 @@ pipeline {
         stage('Deploy - Prod') {
           steps {
             script {
-              if (env.BRANCH_NAME == 'master' || env.BRANCH_NAME == $(releaseVersion) || env.BRANCH_NAME == null) {
+              if (env.BRANCH_NAME == 'master' || env.BRANCH_NAME == "$(releaseVersion)" || env.BRANCH_NAME == null) {
                 timeout(time: 10, unit: 'MINUTES') {
                   input '确认要部署Prod环境吗？'
                 }
