@@ -30,11 +30,11 @@ pipeline {
       steps {
         script {
           build_tag = sh(returnStdout: true, script: 'git rev-parse --short HEAD').trim()
-          if (env.BRANCH_NAME == "$(releaseVersion)") {
+          if (env.BRANCH_NAME == "${releaseVersion}") {
             build_tag = "${env.BRANCH_NAME}"
           }
           sh("sed -i 's#version: */#version: ${build_tag}#' ./build.gradle")
-          if (env.BRANCH_NAME != 'staging' && env.BRANCH_NAME != 'master' && env.BRANCH_NAME != "$(releaseVersion)") {
+          if (env.BRANCH_NAME != 'staging' && env.BRANCH_NAME != 'master' && env.BRANCH_NAME != "${releaseVersion}") {
             build_tag = "${env.BRANCH_NAME}-${build_tag}"
             sh("sed -i 's#version: */#version: ${build_tag}-SNAPSHOT#' ./build.gradle")
           }
@@ -92,7 +92,7 @@ pipeline {
                 not {
                   branch 'staging'
                   branch 'master'
-                  branch "$(releaseVersion)"
+                  branch "${releaseVersion}"
                 }
               }
               steps {
@@ -115,7 +115,7 @@ pipeline {
               when {
                 anyOf {
                   branch 'master'
-                  branch "$(releaseVersion)"
+                  branch "${releaseVersion}"
                 }
               }
               steps {
@@ -166,7 +166,7 @@ pipeline {
         }
         stage('Deploy - Prod') {
           when {
-            expression { BRANCH_NAME ==~ /(master|"$(releaseVersion)")/ }
+            expression { BRANCH_NAME ==~ /(master|"${releaseVersion}")/ }
             anyOf {
                 environment name: 'DEPLOY_TO', value: 'production'
                 environment name: 'DEPLOY_TO', value: 'release'
