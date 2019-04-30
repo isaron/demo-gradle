@@ -4,9 +4,21 @@ def releaseVersion = '0.0.1'
 // def feSvcName = "${appName}-frontend"
 // def registry = 'containers.ssii.com'
 // def imageTag = "${registry}/${project}/${appName}:${env.BRANCH_NAME}.${env.BUILD_NUMBER}"
+// def build_tag = env.BRANCH_NAME
 
 pipeline {
   agent any
+  // triggers {
+  //   cron('H */4 * * 1-5')
+  // }
+  options {
+    // retry(3)
+    // skipDefaultCheckout()
+    timeout(time: 1, unit: 'HOURS') 
+  }
+  environment {
+    build_tag = sh(returnStdout: true, script: 'git rev-parse --short HEAD').trim()
+  }
   stages {
     // stage('Checkout') {
     //   steps {
@@ -69,19 +81,44 @@ pipeline {
           }
         }
         stage('Push Helm chart') {
-          steps {
-            script {
-              if (env.BRANCH_NAME != 'staging' && env.BRANCH_NAME != 'master' && env.BRANCH_NAME != "$(releaseVersion)" && env.BRANCH_NAME == null) {
+          when {
+            expression {
+              currentBuild.result == null || currentBuild.result == 'SUCCESS' // 判断是否发生测试失败
+            }
+          }
+          parallel {
+            stage('Push Helm chart - Dev/Testing/Feature/Bugfix') {
+              when {
+                not {
+                  branch 'staging'
+                  branch 'master'
+                  branch "$(releaseVersion)"
+                }
+              }
+              steps {
                 sh("sed -i 's#tag: */#tag: ${build_tag}#' ./charts/demo-gradle/values.yaml")
                 sh("sed -i 's#appVersion: */#appVersion: ${build_tag}#' ./charts/demo-gradle/Chart.yaml")
                 sh("helm push ./charts/demo-gradle --version='${build_tag}' chartmuseum")
               }
-              if (env.BRANCH_NAME == 'staging' || env.BRANCH_NAME == null) {
+            }
+            stage('Push Helm chart - Staging') {
+              when {
+                branch 'staging'
+              }
+              steps {
                 sh("sed -i 's#tag: */#tag: ${build_tag}#' ./charts/demo-gradle/values.yaml")
                 sh("sed -i 's#appVersion: */#appVersion: ${build_tag}#' ./charts/demo-gradle/Chart.yaml")
                 sh("helm push ./charts/demo-gradle --version='${build_tag}-staging' chartmuseum")
               }
-              if (env.BRANCH_NAME == 'master' || env.BRANCH_NAME == "$(releaseVersion)" || env.BRANCH_NAME == null) {
+            }
+            stage('Push Helm chart - Prod') {
+              when {
+                anyOf {
+                  branch 'master'
+                  branch "$(releaseVersion)"
+                }
+              }
+              steps {
                 sh("sed -i 's#tag: */#tag: ${build_tag}#' ./charts/demo-gradle/values.yaml")
                 sh("sed -i 's#prodReady: */#prodReady: true#' ./charts/demo-gradle/values.yaml")
                 sh("sed -i 's#appVersion: */#appVersion: ${build_tag}#' ./charts/demo-gradle/Chart.yaml")
@@ -100,45 +137,47 @@ pipeline {
       }
       parallel {
         stage('Deploy - Dev') {
+          when {
+            branch 'dev'
+          }
           steps {
-            script {
-              if (env.BRANCH_NAME == 'dev' || env.BRANCH_NAME == null) {
-                sh("helm upgrade --install demo-gradle --version ${build_tag} --namespace dev chartmuseum/demo-gradle")
-              }
-            }
+            sh("helm upgrade --install demo-gradle --version ${build_tag} --namespace dev chartmuseum/demo-gradle")
           }
         }
         stage('Deploy - Testing') {
+          when {
+            branch 'testing'
+          }
           steps {
-            script {
-              if (env.BRANCH_NAME == 'testing' || env.BRANCH_NAME == null) {
-                sh("helm upgrade --install demo-gradle --version ${build_tag} --namespace testing chartmuseum/demo-gradle")
-              }
-            }
+            sh("helm upgrade --install demo-gradle --version ${build_tag} --namespace testing chartmuseum/demo-gradle")
           }
         }
         stage('Deploy - Staging') {
+          when {
+            branch 'staging'
+          }
+          input {
+            message "确认要部署Staging环境吗？"
+            id "staging-input"
+          }
           steps {
-            script {
-              if (env.BRANCH_NAME == 'staging' || env.BRANCH_NAME == null) {
-                timeout(time: 10, unit: 'MINUTES') {
-                  input '确认要部署Staging环境吗？'
-                }
-              }
-              sh("helm upgrade --install demo-gradle --version ${build_tag}-staging --namespace staging chartmuseum/demo-gradle")
-            }
+            sh("helm upgrade --install demo-gradle --version ${build_tag}-staging --namespace staging chartmuseum/demo-gradle")
           }
         }
         stage('Deploy - Prod') {
-          steps {
-            script {
-              if (env.BRANCH_NAME == 'master' || env.BRANCH_NAME == "$(releaseVersion)" || env.BRANCH_NAME == null) {
-                timeout(time: 10, unit: 'MINUTES') {
-                  input '确认要部署Prod环境吗？'
-                }
-              }
-              sh("helm upgrade --install demo-gradle --version='${build_tag}' --namespace production chartmuseum/demo-gradl")
+          when {
+            expression { BRANCH_NAME ==~ /(master|"$(releaseVersion)")/ }
+            anyOf {
+                environment name: 'DEPLOY_TO', value: 'production'
+                environment name: 'DEPLOY_TO', value: 'release'
             }
+          }
+          input {
+            message "确认要部署Prod环境吗？"
+            id "prod-input"
+          }
+          steps {
+            sh("helm upgrade --install demo-gradle --version='${build_tag}' --namespace production chartmuseum/demo-gradl")
           }
         }
       }
