@@ -70,6 +70,11 @@ pipeline {
       //   }
       // }
       parallel {
+        when {
+          expression {
+            currentBuild.result == null || currentBuild.result == 'SUCCESS' // 判断是否发生测试失败
+          }
+        }
         stage('Publish Jar') {
           steps {
             sh("./gradlew publish")
@@ -80,51 +85,43 @@ pipeline {
             sh("./gradlew jib")
           }
         }
-        stage('Push Helm chart') {
+        stage('Push Helm chart - Dev/Testing/Feature/Bugfix') {
           when {
-            expression {
-              currentBuild.result == null || currentBuild.result == 'SUCCESS' // 判断是否发生测试失败
+            expression { BRANCH_NAME !=~ /(master&staging&"${releaseVersion}")/ }
+            not {
+              branch 'staging'
+              branch 'master'
+              branch "${releaseVersion}"
             }
           }
-          parallel {
-            stage('Push Helm chart - Dev/Testing/Feature/Bugfix') {
-              when {
-                not {
-                  branch 'staging'
-                  branch 'master'
-                  branch "${releaseVersion}"
-                }
-              }
-              steps {
-                sh("sed -i 's#tag: */#tag: ${build_tag}#' ./charts/demo-gradle/values.yaml")
-                sh("sed -i 's#appVersion: */#appVersion: ${build_tag}#' ./charts/demo-gradle/Chart.yaml")
-                sh("helm push ./charts/demo-gradle --version='${build_tag}' chartmuseum")
-              }
+          steps {
+            sh("sed -i 's#tag: */#tag: ${build_tag}#' ./charts/demo-gradle/values.yaml")
+            sh("sed -i 's#appVersion: */#appVersion: ${build_tag}#' ./charts/demo-gradle/Chart.yaml")
+            sh("helm push ./charts/demo-gradle --version='${build_tag}' chartmuseum")
+          }
+        }
+        stage('Push Helm chart - Staging') {
+          when {
+            branch 'staging'
+          }
+          steps {
+            sh("sed -i 's#tag: */#tag: ${build_tag}#' ./charts/demo-gradle/values.yaml")
+            sh("sed -i 's#appVersion: */#appVersion: ${build_tag}#' ./charts/demo-gradle/Chart.yaml")
+            sh("helm push ./charts/demo-gradle --version='${build_tag}-staging' chartmuseum")
+          }
+        }
+        stage('Push Helm chart - Prod') {
+          when {
+            anyOf {
+              branch 'master'
+              branch "${releaseVersion}"
             }
-            stage('Push Helm chart - Staging') {
-              when {
-                branch 'staging'
-              }
-              steps {
-                sh("sed -i 's#tag: */#tag: ${build_tag}#' ./charts/demo-gradle/values.yaml")
-                sh("sed -i 's#appVersion: */#appVersion: ${build_tag}#' ./charts/demo-gradle/Chart.yaml")
-                sh("helm push ./charts/demo-gradle --version='${build_tag}-staging' chartmuseum")
-              }
-            }
-            stage('Push Helm chart - Prod') {
-              when {
-                anyOf {
-                  branch 'master'
-                  branch "${releaseVersion}"
-                }
-              }
-              steps {
-                sh("sed -i 's#tag: */#tag: ${build_tag}#' ./charts/demo-gradle/values.yaml")
-                sh("sed -i 's#prodReady: */#prodReady: true#' ./charts/demo-gradle/values.yaml")
-                sh("sed -i 's#appVersion: */#appVersion: ${build_tag}#' ./charts/demo-gradle/Chart.yaml")
-                sh("helm push -f ./charts/demo-gradle --version='${build_tag}' chartmuseum")
-              }
-            }
+          }
+          steps {
+            sh("sed -i 's#tag: */#tag: ${build_tag}#' ./charts/demo-gradle/values.yaml")
+            sh("sed -i 's#prodReady: */#prodReady: true#' ./charts/demo-gradle/values.yaml")
+            sh("sed -i 's#appVersion: */#appVersion: ${build_tag}#' ./charts/demo-gradle/Chart.yaml")
+            sh("helm push -f ./charts/demo-gradle --version='${build_tag}' chartmuseum")
           }
         }
       }
