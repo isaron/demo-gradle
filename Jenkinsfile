@@ -69,12 +69,12 @@ pipeline {
       //     filename 'Dockerfile'
       //   }
       // }
-      parallel {
-        when {
-          expression {
-            currentBuild.result == null || currentBuild.result == 'SUCCESS' // 判断是否发生测试失败
-          }
+      when {
+        expression {
+          currentBuild.result == null || currentBuild.result == 'SUCCESS' // 判断是否发生测试失败
         }
+      }
+      parallel {
         stage('Publish Jar') {
           steps {
             sh("./gradlew publish")
@@ -88,11 +88,6 @@ pipeline {
         stage('Push Helm chart - Dev/Testing/Feature/Bugfix') {
           when {
             expression { BRANCH_NAME !=~ /(master&staging&"${releaseVersion}")/ }
-            not {
-              branch 'staging'
-              branch 'master'
-              branch "${releaseVersion}"
-            }
           }
           steps {
             sh("sed -i 's#tag: */#tag: ${build_tag}#' ./charts/demo-gradle/values.yaml")
