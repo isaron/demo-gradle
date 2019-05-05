@@ -87,7 +87,7 @@ pipeline {
         }
         stage('Push Helm chart - Dev/Testing/Feature/Bugfix') {
           when {
-            expression { BRANCH_NAME !=~ /(master&staging&"${releaseVersion}")/ }
+            expression { env.BRANCH_NAME !=~ /(master&staging&"${releaseVersion}")/ }
           }
           steps {
             sh("sed -i 's#tag: */#tag: ${build_tag}#' ./charts/demo-gradle/values.yaml")
