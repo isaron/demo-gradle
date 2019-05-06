@@ -90,7 +90,11 @@ pipeline {
         }
         stage('Push Helm chart - Dev/Testing/Feature/Bugfix') {
           when {
-            expression { BRANCH_NAME != /(master|staging|"${releaseVersion}")/ }
+            not {
+              anyOf {
+                branch 'master'
+                branch "${releaseVersion}"
+            }
           }
           steps {
             sh("sed -i 's|tag: */|tag: ${build_tag}|g' ./charts/${appName}/values.yaml")
