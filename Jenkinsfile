@@ -147,7 +147,7 @@ pipeline {
             branch 'testing'
           }
           steps {
-            sh("helm upgrade --install ${appName} --version ${releaseVersion}-${build_tag} --namespace testing chartmuseum$/{appName}")
+            sh("helm upgrade --install ${appName} --version ${releaseVersion}-${build_tag} --namespace testing chartmuseum/${appName}")
           }
         }
         stage('Deploy - Staging') {
