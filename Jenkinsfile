@@ -87,7 +87,7 @@ pipeline {
         }
         stage('Push Helm chart - Dev/Testing/Feature/Bugfix') {
           when {
-            expression { env.BRANCH_NAME !=~ /(master&staging&"${releaseVersion}")/ }
+            expression { BRANCH_NAME != /(master|staging|"${releaseVersion}")/ }
           }
           steps {
             sh("sed -i 's#tag: */#tag: ${build_tag}#' ./charts/demo-gradle/values.yaml")
@@ -169,7 +169,7 @@ pipeline {
             id "prod-input"
           }
           steps {
-            sh("helm upgrade --install demo-gradle --version='${build_tag}' --namespace production chartmuseum/demo-gradl")
+            sh("helm upgrade --install demo-gradle --version='${build_tag}' --namespace production chartmuseum/demo-gradle")
           }
         }
       }
