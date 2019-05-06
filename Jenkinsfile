@@ -22,7 +22,7 @@ pipeline {
   stages {
     // stage('Checkout') {
     //   steps {
-    //     // checkout([$class: 'GitSCM',branches:[[name:'*/master']],doGenerateSubmoduleConfigurations:false,xtensions:[],submoduleCfg:[],userRemoteConfigs:[[credentialsId:'git:12c5e7bd0e763bbeffcbd5e1bcbc7e010014e7c083c3e78474e99fccbbe68237',url:'https://gitea.ssii.com/RDP/demo-gradle.git']]])
+    //     // checkout([$class: 'GitSCM',branches:[[name:'*/master']],doGenerateSubmoduleConfigurations:false,xtensions:[],submoduleCfg:[],userRemoteConfigs:[[credentialsId:'git:12c5e7bd0e763bbeffcbd5e1bcbc7e010014e7c083c3e78474e99fccbbe68237',url:'https://gitea.ssii.com/RDP/${appName}.git']]])
     //     checkout scm
     //   }
     // }
@@ -33,10 +33,13 @@ pipeline {
           if (env.BRANCH_NAME == "${releaseVersion}") {
             build_tag = "${env.BRANCH_NAME}"
           }
-          sh("sed -i 's#version: */#version: ${build_tag}#' ./build.gradle")
+          if (env.BRANCH_NAME == 'master' || env.BRANCH_NAME == 'staging') {
+            build_tag = "${releaseVersion}-${env.BRANCH_NAME}"
+          }
+          sh("sed -i 's|version: */|version: ${build_tag}|g' ./build.gradle")
           if (env.BRANCH_NAME != 'staging' && env.BRANCH_NAME != 'master' && env.BRANCH_NAME != "${releaseVersion}") {
             build_tag = "${env.BRANCH_NAME}-${build_tag}"
-            sh("sed -i 's#version: */#version: ${build_tag}-SNAPSHOT#' ./build.gradle")
+            sh("sed -i 's|version: */|version: ${build_tag}-SNAPSHOT|g' ./build.gradle")
           }
         }
         sh("chmod +x ./gradlew")
@@ -52,7 +55,7 @@ pipeline {
         // }
         // stage('Code Analysis') {
         //   steps {
-        //     sh("./gradlew sonarqube -Dsonar.projectKey=demo-gradle -Dsonar.host.url=https://sonar.ssii.com -Dsonar.login=05e82e5b6bd6a9503972de695897d701b2965546")
+        //     sh("./gradlew sonarqube -Dsonar.projectKey=${appName} -Dsonar.host.url=https://sonar.ssii.com -Dsonar.login=05e82e5b6bd6a9503972de695897d701b2965546")
         //     waitForQualityGate true
         //   }
         // }
@@ -90,9 +93,10 @@ pipeline {
             expression { BRANCH_NAME != /(master|staging|"${releaseVersion}")/ }
           }
           steps {
-            sh("sed -i 's#tag: */#tag: ${build_tag}#' ./charts/demo-gradle/values.yaml")
-            sh("sed -i 's#appVersion: */#appVersion: ${build_tag}#' ./charts/demo-gradle/Chart.yaml")
-            sh("helm push ./charts/demo-gradle --version='${build_tag}' chartmuseum")
+            sh("sed -i 's|tag: */|tag: ${build_tag}|g' ./charts/${appName}/values.yaml")
+            sh("sed -i 's|version: */|version: ${releaseVersion}-${build_tag}|g' ./charts/${appName}/Chart.yaml")
+            sh("sed -i 's|appVersion: */|appVersion: ${releaseVersion}-${build_tag}|g' ./charts/${appName}/Chart.yaml")
+            sh("helm push ./charts/${appName} --version='${releaseVersion}-${build_tag}' chartmuseum")
           }
         }
         stage('Push Helm chart - Staging') {
@@ -100,9 +104,10 @@ pipeline {
             branch 'staging'
           }
           steps {
-            sh("sed -i 's#tag: */#tag: ${build_tag}#' ./charts/demo-gradle/values.yaml")
-            sh("sed -i 's#appVersion: */#appVersion: ${build_tag}#' ./charts/demo-gradle/Chart.yaml")
-            sh("helm push ./charts/demo-gradle --version='${build_tag}-staging' chartmuseum")
+            sh("sed -i 's|tag: */|tag: ${build_tag}|g' ./charts/${appName}/values.yaml")
+            sh("sed -i 's|version: */|version: ${build_tag}|g' ./charts/${appName}/Chart.yaml")
+            sh("sed -i 's|appVersion: */|appVersion: ${build_tag}|g' ./charts/${appName}/Chart.yaml")
+            sh("helm push ./charts/${appName} --version='${build_tag}' chartmuseum")
           }
         }
         stage('Push Helm chart - Prod') {
@@ -113,10 +118,11 @@ pipeline {
             }
           }
           steps {
-            sh("sed -i 's#tag: */#tag: ${build_tag}#' ./charts/demo-gradle/values.yaml")
-            sh("sed -i 's#prodReady: */#prodReady: true#' ./charts/demo-gradle/values.yaml")
-            sh("sed -i 's#appVersion: */#appVersion: ${build_tag}#' ./charts/demo-gradle/Chart.yaml")
-            sh("helm push -f ./charts/demo-gradle --version='${build_tag}' chartmuseum")
+            sh("sed -i 's|tag: */|tag: ${build_tag}|g' ./charts/${appName}/values.yaml")
+            sh("sed -i 's|prodReady: */|prodReady: true|g' ./charts/${appName}/values.yaml")
+            sh("sed -i 's|version: */|version: ${build_tag}|g' ./charts/${appName}/Chart.yaml")
+            sh("sed -i 's|appVersion: */|appVersion: ${build_tag}|g' ./charts/${appName}/Chart.yaml")
+            sh("helm push -f ./charts/${appName} --version='${build_tag}' chartmuseum")
           }
         }
       }
@@ -133,7 +139,7 @@ pipeline {
             branch 'dev'
           }
           steps {
-            sh("helm upgrade --install demo-gradle --version ${build_tag} --namespace dev chartmuseum/demo-gradle")
+            sh("helm upgrade --install ${appName} --version ${releaseVersion}-${build_tag} --namespace dev chartmuseum/${appName}")
           }
         }
         stage('Deploy - Testing') {
@@ -141,7 +147,7 @@ pipeline {
             branch 'testing'
           }
           steps {
-            sh("helm upgrade --install demo-gradle --version ${build_tag} --namespace testing chartmuseum/demo-gradle")
+            sh("helm upgrade --install ${appName} --version ${releaseVersion}-${build_tag} --namespace testing chartmuseum$/{appName}")
           }
         }
         stage('Deploy - Staging') {
@@ -153,7 +159,7 @@ pipeline {
             id "staging-input"
           }
           steps {
-            sh("helm upgrade --install demo-gradle --version ${build_tag}-staging --namespace staging chartmuseum/demo-gradle")
+            sh("helm upgrade --install ${appName} --version ${build_tag} --namespace staging chartmuseum/${appName}")
           }
         }
         stage('Deploy - Prod') {
@@ -169,7 +175,7 @@ pipeline {
             id "prod-input"
           }
           steps {
-            sh("helm upgrade --install demo-gradle --version='${build_tag}' --namespace production chartmuseum/demo-gradle")
+            sh("helm upgrade --install ${appName} --version='${build_tag}' --namespace production chartmuseum/${appName}")
           }
         }
       }
