@@ -93,6 +93,7 @@ pipeline {
             not {
               anyOf {
                 branch 'master'
+                branch 'staging'
                 branch "${releaseVersion}"
               }
             }
