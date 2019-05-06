@@ -170,11 +170,11 @@ pipeline {
         }
         stage('Deploy - Prod') {
           when {
-            expression { BRANCH_NAME ==~ /(master|"${releaseVersion}")/ }
-            anyOf {
-                environment name: 'DEPLOY_TO', value: 'production'
-                environment name: 'DEPLOY_TO', value: 'release'
-            }
+            expression { BRANCH_NAME == /(master|"${releaseVersion}")/ }
+            // anyOf {
+            //     environment name: 'DEPLOY_TO', value: 'production'
+            //     environment name: 'DEPLOY_TO', value: 'release'
+            // }
           }
           input {
             message "确认要部署Prod环境吗？"
