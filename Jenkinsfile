@@ -94,6 +94,7 @@ pipeline {
               anyOf {
                 branch 'master'
                 branch "${releaseVersion}"
+              }
             }
           }
           steps {
