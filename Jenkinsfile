@@ -130,7 +130,7 @@ pipeline {
             sh("sed -i 's|version: */|version: ${build_tag}|g' ./charts/${appName}/Chart.yaml")
             sh("sed -i 's|appVersion: */|appVersion: ${build_tag}|g' ./charts/${appName}/Chart.yaml")
             // sh("helm push -f ./charts/${appName} --version=${build_tag} chartmuseum")
-            sh("helm package ./charts/${appName} && curl --data-binary "@${appName}-${build_tag}.tgz" https://${chartmuseum}/api/charts")
+            sh("helm package ./charts/${appName} && curl --data-binary "\@${appName}-${build_tag}.tgz" https://${chartmuseum}/api/charts")
           }
         }
       }
