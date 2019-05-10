@@ -172,7 +172,11 @@ pipeline {
         }
         stage('Deploy - Prod') {
           when {
-            expression { BRANCH_NAME == /(master|"${releaseVersion}")/ }
+            anyOf {
+              branch 'master'
+              branch ${releaseVersion}
+            }
+            // expression { BRANCH_NAME == /(master|"${releaseVersion}")/ }
             // anyOf {
             //     environment name: 'DEPLOY_TO', value: 'production'
             //     environment name: 'DEPLOY_TO', value: 'release'
