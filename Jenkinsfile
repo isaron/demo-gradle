@@ -1,7 +1,7 @@
 def project = 'com.ssii.rdp'
 def appName = 'demo-gradle'
 def releaseVersion = '0.0.1'
-def chartmuseum = 'chartmuseum.ssii.com'
+// def chartmuseum = 'chartmuseum.ssii.com'
 // def feSvcName = "${appName}-frontend"
 // def registry = 'containers.ssii.com'
 // def imageTag = "${registry}/${project}/${appName}:${env.BRANCH_NAME}.${env.BUILD_NUMBER}"
