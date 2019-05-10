@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class DemoGradleApplication {
 	@RequestMapping("/")
 	public String index(){
-		return "Hello Gradle 6!";
+		return "Hello Gradle! 2019/5/10";
 	}
 
 	public static void main(String[] args) {
