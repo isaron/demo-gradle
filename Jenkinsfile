@@ -129,9 +129,7 @@ pipeline {
             sh("sed -i 's|prodReady: */|prodReady: true|g' ./charts/${appName}/values.yaml")
             sh("sed -i 's|version: */|version: ${build_tag}|g' ./charts/${appName}/Chart.yaml")
             sh("sed -i 's|appVersion: */|appVersion: ${build_tag}|g' ./charts/${appName}/Chart.yaml")
-            sh("helm --help")
             sh("helm push -f ./charts/${appName} --version=${build_tag} chartmuseum")
-            // sh("helm package ./charts/${appName} && curl --data-binary '@${appName}-${build_tag}.tgz' https://${chartmuseum}/api/charts")
           }
         }
       }
@@ -164,8 +162,9 @@ pipeline {
             branch 'staging'
           }
           input {
-            message "确认要部署Staging环境吗？"
+            message "确认部署Staging环境吗？"
             id "staging-input"
+            ok "确认部署"
           }
           steps {
             sh("helm upgrade --install ${appName} --version ${build_tag} --namespace staging chartmuseum/${appName}")
@@ -180,8 +179,9 @@ pipeline {
             // }
           }
           input {
-            message "确认要部署Prod环境吗？"
+            message "确认部署Prod环境吗？"
             id "prod-input"
+            ok "确认部署"
           }
           steps {
             sh("helm upgrade --install ${appName} --version ${build_tag} --namespace production chartmuseum/${appName}")
