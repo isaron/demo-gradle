@@ -174,7 +174,7 @@ pipeline {
           when {
             anyOf {
               branch 'master'
-              branch ${releaseVersion}
+              branch "${releaseVersion}"
             }
             // expression { BRANCH_NAME == /(master|"${releaseVersion}")/ }
             // anyOf {
