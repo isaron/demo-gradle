@@ -13,7 +13,7 @@ Run Sonar Scanner for Gradle:
 
 ```
 plugins {
-  id "org.sonarqube" version "2.6"
+  id "org.sonarqube" version "2.7"
 }
 ```
 - and run the following command:
