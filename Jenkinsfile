@@ -1,6 +1,6 @@
 def project = 'com.ssii.rdp'
 def appName = 'demo-gradle'
-def releaseVersion = '0.0.1'
+def releaseVersion = '0.0.2'
 // def chartmuseum = 'chartmuseum.ssii.com'
 // def feSvcName = "${appName}-frontend"
 // def registry = 'containers.ssii.com'
@@ -133,6 +133,7 @@ pipeline {
             sh("sed -i 's|appVersion: */|appVersion: ${build_tag}|g' ./charts/${appName}/Chart.yaml")
             sh("helm push -f ./charts/${appName} --version=${build_tag} chartmuseum")
             sh("helm repo update")
+            sh("cat $HELM_HOME/repository/cache/chartmuseum-index.yaml")
           }
         }
       }
@@ -191,6 +192,7 @@ pipeline {
             ok "确认部署"
           }
           steps {
+            sh("cat $HELM_HOME/repository/cache/chartmuseum-index.yaml")
             sh("helm upgrade --install ${appName} --version ${build_tag} --namespace production chartmuseum/${appName}")
           }
         }
