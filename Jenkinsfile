@@ -194,7 +194,6 @@ pipeline {
           }
           steps {
             sh("helm repo update")
-            sh("cat $HELM_HOME/repository/cache/chartmuseum-index.yaml")
             sh("helm upgrade --install ${appName} --version ${build_tag} --namespace production chartmuseum/${appName}")
           }
         }
