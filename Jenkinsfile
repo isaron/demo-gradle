@@ -40,11 +40,11 @@ pipeline {
             build_tag = "${releaseVersion}-${env.BRANCH_NAME}"
             release_tag = "${build_tag}"
           }
-          sh(sed -i 's|version = '0.0.1-SNAPSHOT'|version = '"${build_tag}"'|g' ./build.gradle)
+          sh(sed -i "s|version = '0.0.1-SNAPSHOT'|version = '${build_tag}'|g" ./build.gradle)
           if (env.BRANCH_NAME != 'staging' && env.BRANCH_NAME != 'master' && env.BRANCH_NAME != "${releaseVersion}") {
             build_tag = "${env.BRANCH_NAME}-${build_tag}"
             release_tag = "${releaseVersion}-${build_tag}"
-            sh(sed -i 's|version = '0.0.1-SNAPSHOT'|version = '"${build_tag}"-SNAPSHOT'|g' ./build.gradle)
+            sh(sed -i "s|version = '0.0.1-SNAPSHOT'|version = '${build_tag}-SNAPSHOT'|g" ./build.gradle)
           }
         }
         sh("chmod +x ./gradlew")
