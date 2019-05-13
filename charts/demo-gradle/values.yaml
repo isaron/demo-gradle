@@ -1,8 +1,10 @@
 # Default values for Gradle projects.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
+
 # buildID: master
 # buildID: xxxxxxx-testing
+# nameOverride:
 prodReady: false
 
 replicaCount: 1
@@ -27,11 +29,15 @@ HealthProbes:
 
 service:
   name: demo-gradle
+  labels: {}
   annotations: {}
     # external-dns.alpha.kubernetes.io/hostname: demo-gradle.rdp.ssii.com
   JavaOpts: "-Xms512m -Xmx512m -Xdebug -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap"
-  UriPrefix: "/"
+  UriPrefix: /
   type: ClusterIP
+  externalTrafficPolicy: Local
+  # clusterIP: None
+  nodePort: 
   ports:
     name: http-demo
     port: 8080
@@ -47,7 +53,7 @@ resources:
     memory: 512Mi
 
 ingress:
-  enabled: false
+  enabled: true
   # For Kubernetes v1.14+, use 'networking.k8s.io/v1beta1'
   apiVersion: extensions/v1beta1
   labels: {}

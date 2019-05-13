@@ -6,9 +6,9 @@ metadata:
   annotations:
 {{ toYaml .Values.Persistence.Annotations | indent 4 }}
 {{- end }}
-  name: {{ template "fullname" . }}
+  name: name: {{ include "demo-gradle.fullname" . }}
   labels:
-    app: {{ template "fullname" . }}
+    app: name: {{ include "demo-gradle.fullname" . }}
     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
     release: "{{ .Release.Name }}"
     heritage: "{{ .Release.Service }}"

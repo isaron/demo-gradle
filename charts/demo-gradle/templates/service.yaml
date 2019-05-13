@@ -1,26 +1,39 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ template "fullname" . }}
-  labels:
-    heritage: {{.Release.Service | quote }}
-    release: {{.Release.Name | quote }}
-    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
-  annotations:
-{{- if .Values.prodReady }}
-    external-dns.alpha.kubernetes.io/hostname: {{ .Values.ingress.hostName }}
+{{- if .Values.service.name }}
+  name: {{ .Values.service.name }}
 {{- else }}
-    external-dns.alpha.kubernetes.io/hostname: {{ .Values.image.tag }}.{{ .Values.ingress.hostName }}
-{{- end  }}
+  name: {{ include "demo-gradle.fullname" . }}
+{{- end }}
+  labels:
+{{ include "demo-gradle.labels.standard" . | indent 4 }}
+{{- if .Values.service.labels }}
+{{ toYaml .Values.service.labels | indent 4 }}
+{{- end }}
+    # heritage: {{.Release.Service | quote }}
+    # release: {{.Release.Name | quote }}
+    # chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: {{ .Values.ingress.hostName }}
 {{- if .Values.service.annotations }}
 {{ toYaml .Values.service.annotations | indent 4 }}
 {{- end }}
 spec:
   type: {{ .Values.service.type }}
+  {{- if (and (eq .Values.service.type "NodePort") (not (empty .Values.service.nodePort))) }}
+  externalTrafficPolicy: {{ .Values.service.externalTrafficPolicy }}
+  {{- end }}
+  {{- if eq .Values.service.type "ClusterIP" }}
+  {{- if .Values.service.clusterIP }}
+  clusterIP: {{ .Values.service.clusterIP }}
+  {{- end }}
+  {{- end }}
   ports:
     - name: {{ .Values.service.ports.name }}
       port: {{ .Values.service.ports.port }}
       targetPort: {{ .Values.service.ports.targetPort }}
       protocol: {{ .Values.service.ports.protocol }}
   selector:
-    app: {{ template "fullname" . }}
+    app: {{ template "demo-gradle.name" . }}
+    release: {{ .Release.Name | quote }}

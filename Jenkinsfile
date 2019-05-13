@@ -37,10 +37,10 @@ pipeline {
           if (env.BRANCH_NAME == 'master' || env.BRANCH_NAME == 'staging') {
             build_tag = "${releaseVersion}-${env.BRANCH_NAME}"
           }
-          sh("sed -i 's|version: */|version: ${build_tag}|g' ./build.gradle")
+          sh("sed -i 's|version: *|version: ${build_tag}|g' ./build.gradle")
           if (env.BRANCH_NAME != 'staging' && env.BRANCH_NAME != 'master' && env.BRANCH_NAME != "${releaseVersion}") {
             build_tag = "${env.BRANCH_NAME}-${build_tag}"
-            sh("sed -i 's|version: */|version: ${build_tag}-SNAPSHOT|g' ./build.gradle")
+            sh("sed -i 's|version: *|version: ${build_tag}-SNAPSHOT|g' ./build.gradle")
           }
         }
         sh("chmod +x ./gradlew")
@@ -100,11 +100,11 @@ pipeline {
             }
           }
           steps {
-            sh("sed -i 's|tag: */|tag: ${build_tag}|g' ./charts/${appName}/values.yaml")
-            sh("sed -i 's|version: */|version: ${releaseVersion}-${build_tag}|g' ./charts/${appName}/Chart.yaml")
-            sh("sed -i 's|appVersion: */|appVersion: ${releaseVersion}-${build_tag}|g' ./charts/${appName}/Chart.yaml")
+            sh("sed -i 's|tag: *|tag: ${build_tag}|g' ./charts/${appName}/values.yaml")
+            sh("sed -i 's|UriPrefix: *|UriPrefix: /${build_tag}|g' ./charts/${appName}/values.yaml")
+            sh("sed -i 's|version: *|version: ${releaseVersion}-${build_tag}|g' ./charts/${appName}/Chart.yaml")
+            sh("sed -i 's|appVersion: *|appVersion: ${releaseVersion}-${build_tag}|g' ./charts/${appName}/Chart.yaml")
             sh("helm push -f ./charts/${appName} --version=${releaseVersion}-${build_tag} chartmuseum")
-            sh("helm repo update")
           }
         }
         stage('Push Helm chart - Staging') {
@@ -112,11 +112,11 @@ pipeline {
             branch 'staging'
           }
           steps {
-            sh("sed -i 's|tag: */|tag: ${build_tag}|g' ./charts/${appName}/values.yaml")
-            sh("sed -i 's|version: */|version: ${build_tag}|g' ./charts/${appName}/Chart.yaml")
-            sh("sed -i 's|appVersion: */|appVersion: ${build_tag}|g' ./charts/${appName}/Chart.yaml")
+            sh("sed -i 's|tag: *|tag: ${build_tag}|g' ./charts/${appName}/values.yaml")
+            sh("sed -i 's|UriPrefix: *|UriPrefix: /${build_tag}|g' ./charts/${appName}/values.yaml")
+            sh("sed -i 's|version: *|version: ${build_tag}|g' ./charts/${appName}/Chart.yaml")
+            sh("sed -i 's|appVersion: *|appVersion: ${build_tag}|g' ./charts/${appName}/Chart.yaml")
             sh("helm push -f ./charts/${appName} --version=${build_tag} chartmuseum")
-            sh("helm repo update")
           }
         }
         stage('Push Helm chart - Prod') {
@@ -127,12 +127,11 @@ pipeline {
             }
           }
           steps {
-            sh("sed -i 's|tag: */|tag: ${build_tag}|g' ./charts/${appName}/values.yaml")
-            sh("sed -i 's|prodReady: */|prodReady: true|g' ./charts/${appName}/values.yaml")
-            sh("sed -i 's|version: */|version: ${build_tag}|g' ./charts/${appName}/Chart.yaml")
-            sh("sed -i 's|appVersion: */|appVersion: ${build_tag}|g' ./charts/${appName}/Chart.yaml")
+            sh("sed -i 's|tag: *|tag: ${build_tag}|g' ./charts/${appName}/values.yaml")
+            sh("sed -i 's|prodReady: *|prodReady: true|g' ./charts/${appName}/values.yaml")
+            sh("sed -i 's|version: *|version: ${build_tag}|g' ./charts/${appName}/Chart.yaml")
+            sh("sed -i 's|appVersion: *|appVersion: ${build_tag}|g' ./charts/${appName}/Chart.yaml")
             sh("helm push -f ./charts/${appName} --version=${build_tag} chartmuseum")
-            sh("helm repo update")
             sh("cat $HELM_HOME/repository/cache/chartmuseum-index.yaml")
           }
         }
@@ -150,6 +149,7 @@ pipeline {
             branch 'dev'
           }
           steps {
+            sh("helm repo update")
             sh("helm upgrade --install ${appName} --version ${releaseVersion}-${build_tag} --namespace dev chartmuseum/${appName}")
           }
         }
@@ -158,6 +158,7 @@ pipeline {
             branch 'testing'
           }
           steps {
+            sh("helm repo update")
             sh("helm upgrade --install ${appName} --version ${releaseVersion}-${build_tag} --namespace testing chartmuseum/${appName}")
           }
         }
@@ -171,6 +172,7 @@ pipeline {
           //   ok "确认部署"
           // }
           steps {
+            sh("helm repo update")
             sh("helm upgrade --install ${appName} --version ${build_tag} --namespace staging chartmuseum/${appName}")
           }
         }
@@ -192,6 +194,8 @@ pipeline {
             ok "确认部署"
           }
           steps {
+            sh("cat $HELM_HOME/repository/cache/chartmuseum-index.yaml")
+            sh("helm repo update")
             sh("cat $HELM_HOME/repository/cache/chartmuseum-index.yaml")
             sh("helm upgrade --install ${appName} --version ${build_tag} --namespace production chartmuseum/${appName}")
           }

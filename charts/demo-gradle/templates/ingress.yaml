@@ -2,12 +2,13 @@
 apiVersion: {{ .Values.ingress.apiVersion }}
 kind: Ingress
 metadata:
-  name: {{ template "fullname" . }}
+  name: {{ include "demo-gradle.fullname" . }}
   labels:
-    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+    # chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
 {{- if .Values.ingress.labels }}
 {{ toYaml .Values.ingress.labels | indent 4 }}
 {{- end }}
+{{ include "demo-gradle.labels.standard" . | indent 4 }}
 {{- if .Values.ingress.annotations }}
   annotations:
 {{ toYaml .Values.ingress.annotations | indent 4 }}
@@ -17,9 +18,9 @@ spec:
   - host: {{ .Values.image.tag }}.{{ .Values.ingress.hostName }}
     http:
       paths:
-      - path: /
+      - path: {{ default "/" .Values.service.UriPrefix | quote }}
         backend:
-          serviceName: {{ template "fullname" . }}
+          serviceName: {{ include "demo-gradle.fullname" . }}
           servicePort: {{ .Values.service.ports.port }}
 {{- if .Values.ingress.tls }}
   tls:
