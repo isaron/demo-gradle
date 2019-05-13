@@ -40,7 +40,7 @@ spec:
     {{- else if .Values.rbac.serviceAccountName }}
       serviceAccountName: {{ .Values.rbac.serviceAccountName }}
     {{- end }}
-      serviceAccountName: {{ if .Values.rbac.install }}{{ template "fullname" . }}{{ else }}"{{ .Values.rbac.serviceAccountName }}"{{ end }}
+      serviceAccountName: {{ if .Values.rbac.install }}{{ template "demo-gradle.fullname" . }}{{ else }}"{{ .Values.rbac.serviceAccountName }}"{{ end }}
       containers:
       - name: {{ .Chart.Name }}
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
