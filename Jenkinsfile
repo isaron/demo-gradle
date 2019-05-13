@@ -1,10 +1,10 @@
-def project = 'com.ssii.rdp'
+def projectGroup = 'com.ssii.rdp'
 def appName = 'demo-gradle'
 def releaseVersion = '0.0.2'
 // def chartmuseum = 'chartmuseum.ssii.com'
 // def feSvcName = "${appName}-frontend"
 // def registry = 'containers.ssii.com'
-// def imageTag = "${registry}/${project}/${appName}:${env.BRANCH_NAME}.${env.BUILD_NUMBER}"
+// def imageRepo = "${registry}/${projectGroup}/${appName}:${env.BRANCH_NAME}.${env.BUILD_NUMBER}"
 // def build_tag = env.BRANCH_NAME
 
 pipeline {
@@ -19,6 +19,7 @@ pipeline {
   }
   environment {
     build_tag = sh(returnStdout: true, script: 'git rev-parse --short HEAD').trim()
+    release_tag = "${build_tag}"
   }
   stages {
     // stage('Checkout') {
@@ -33,14 +34,17 @@ pipeline {
           build_tag = sh(returnStdout: true, script: 'git rev-parse --short HEAD').trim()
           if (env.BRANCH_NAME == "${releaseVersion}") {
             build_tag = "${env.BRANCH_NAME}"
+            release_tag = "${build_tag}"
           }
           if (env.BRANCH_NAME == 'master' || env.BRANCH_NAME == 'staging') {
             build_tag = "${releaseVersion}-${env.BRANCH_NAME}"
+            release_tag = "${build_tag}"
           }
-          sh("sed -i 's|version: *|version: ${build_tag}|g' ./build.gradle")
+          sh(sed -i 's|version = '0.0.1-SNAPSHOT'|version = '"${build_tag}"'|g' ./build.gradle)
           if (env.BRANCH_NAME != 'staging' && env.BRANCH_NAME != 'master' && env.BRANCH_NAME != "${releaseVersion}") {
             build_tag = "${env.BRANCH_NAME}-${build_tag}"
-            sh("sed -i 's|version: *|version: ${build_tag}-SNAPSHOT|g' ./build.gradle")
+            release_tag = "${releaseVersion}-${build_tag}"
+            sh(sed -i 's|version = '0.0.1-SNAPSHOT'|version = '"${build_tag}"-SNAPSHOT'|g' ./build.gradle)
           }
         }
         sh("chmod +x ./gradlew")
@@ -102,9 +106,9 @@ pipeline {
           steps {
             sh("sed -i 's|tag: *|tag: ${build_tag}|g' ./charts/${appName}/values.yaml")
             sh("sed -i 's|UriPrefix: *|UriPrefix: /${build_tag}|g' ./charts/${appName}/values.yaml")
-            sh("sed -i 's|version: *|version: ${releaseVersion}-${build_tag}|g' ./charts/${appName}/Chart.yaml")
-            sh("sed -i 's|appVersion: *|appVersion: ${releaseVersion}-${build_tag}|g' ./charts/${appName}/Chart.yaml")
-            sh("helm push -f ./charts/${appName} --version=${releaseVersion}-${build_tag} chartmuseum")
+            sh("sed -i 's|version: *|version: ${release_tag}|g' ./charts/${appName}/Chart.yaml")
+            sh("sed -i 's|appVersion: *|appVersion: ${release_tag}|g' ./charts/${appName}/Chart.yaml")
+            sh("helm push -f ./charts/${appName} --version=${release_tag} chartmuseum")
           }
         }
         stage('Push Helm chart - Staging') {
@@ -114,9 +118,9 @@ pipeline {
           steps {
             sh("sed -i 's|tag: *|tag: ${build_tag}|g' ./charts/${appName}/values.yaml")
             sh("sed -i 's|UriPrefix: *|UriPrefix: /${build_tag}|g' ./charts/${appName}/values.yaml")
-            sh("sed -i 's|version: *|version: ${build_tag}|g' ./charts/${appName}/Chart.yaml")
-            sh("sed -i 's|appVersion: *|appVersion: ${build_tag}|g' ./charts/${appName}/Chart.yaml")
-            sh("helm push -f ./charts/${appName} --version=${build_tag} chartmuseum")
+            sh("sed -i 's|version: *|version: ${release_tag}|g' ./charts/${appName}/Chart.yaml")
+            sh("sed -i 's|appVersion: *|appVersion: ${release_tag}|g' ./charts/${appName}/Chart.yaml")
+            sh("helm push -f ./charts/${appName} --version=${release_tag} chartmuseum")
           }
         }
         stage('Push Helm chart - Prod') {
@@ -129,9 +133,9 @@ pipeline {
           steps {
             sh("sed -i 's|tag: *|tag: ${build_tag}|g' ./charts/${appName}/values.yaml")
             sh("sed -i 's|prodReady: *|prodReady: true|g' ./charts/${appName}/values.yaml")
-            sh("sed -i 's|version: *|version: ${build_tag}|g' ./charts/${appName}/Chart.yaml")
-            sh("sed -i 's|appVersion: *|appVersion: ${build_tag}|g' ./charts/${appName}/Chart.yaml")
-            sh("helm push -f ./charts/${appName} --version=${build_tag} chartmuseum")
+            sh("sed -i 's|version: *|version: ${release_tag}|g' ./charts/${appName}/Chart.yaml")
+            sh("sed -i 's|appVersion: *|appVersion: ${release_tag}|g' ./charts/${appName}/Chart.yaml")
+            sh("helm push -f ./charts/${appName} --version=${release_tag} chartmuseum")
           }
         }
       }
@@ -149,7 +153,7 @@ pipeline {
           }
           steps {
             sh("helm repo update")
-            sh("helm upgrade --install ${appName} --version ${releaseVersion}-${build_tag} --namespace dev chartmuseum/${appName}")
+            sh("helm upgrade --install ${appName} --version ${release_tag} --namespace dev chartmuseum/${appName}")
           }
         }
         stage('Deploy - Testing') {
@@ -158,7 +162,7 @@ pipeline {
           }
           steps {
             sh("helm repo update")
-            sh("helm upgrade --install ${appName} --version ${releaseVersion}-${build_tag} --namespace testing chartmuseum/${appName}")
+            sh("helm upgrade --install ${appName} --version ${release_tag} --namespace testing chartmuseum/${appName}")
           }
         }
         stage('Deploy - Staging') {
@@ -172,7 +176,7 @@ pipeline {
           // }
           steps {
             sh("helm repo update")
-            sh("helm upgrade --install ${appName} --version ${build_tag} --namespace staging chartmuseum/${appName}")
+            sh("helm upgrade --install ${appName} --version ${release_tag} --namespace staging chartmuseum/${appName}")
           }
         }
         stage('Deploy - Prod') {
@@ -194,7 +198,7 @@ pipeline {
           }
           steps {
             sh("helm repo update")
-            sh("helm upgrade --install ${appName} --version ${build_tag} --namespace production chartmuseum/${appName}")
+            sh("helm upgrade --install ${appName} --version ${release_tag} --namespace production chartmuseum/${appName}")
           }
         }
       }
