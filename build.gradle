@@ -32,9 +32,9 @@ apply plugin: 'com.google.cloud.tools.jib'
 apply plugin: 'com.bmuschko.docker-remote-api'
 
 
-group = 'com.ssii.rdp'
+group = "${projectGroup}"
 description = "Demo spring-boot project with Gradle."
-version = '0.0.1-SNAPSHOT'
+version = "${projectVersion}"
 sourceCompatibility = 1.8
 
 repositories {

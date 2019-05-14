@@ -34,17 +34,16 @@ pipeline {
           build_tag = sh(returnStdout: true, script: 'git rev-parse --short HEAD').trim()
           if (env.BRANCH_NAME == "${releaseVersion}") {
             build_tag = "${env.BRANCH_NAME}"
-            release_tag = "${build_tag}"
           }
           if (env.BRANCH_NAME == 'master' || env.BRANCH_NAME == 'staging') {
             build_tag = "${releaseVersion}-${env.BRANCH_NAME}"
-            release_tag = "${build_tag}"
           }
-          sh(sed -i "s|version = '0.0.1-SNAPSHOT'|version = '${build_tag}'|g" ./build.gradle)
+          release_tag = "${build_tag}"
+          sh(sed -i "s|projectVersion=0.0.1|projectVersion=${release_tag}|g" ./gradle.properties)
           if (env.BRANCH_NAME != 'staging' && env.BRANCH_NAME != 'master' && env.BRANCH_NAME != "${releaseVersion}") {
             build_tag = "${env.BRANCH_NAME}-${build_tag}"
             release_tag = "${releaseVersion}-${build_tag}"
-            sh(sed -i "s|version = '0.0.1-SNAPSHOT'|version = '${build_tag}-SNAPSHOT'|g" ./build.gradle)
+            sh(sed -i "s|projectVersion=0.0.1|projectVersion=${release_tag}-SNAPSHOT'|g" ./gradle.properties)
           }
         }
         sh("chmod +x ./gradlew")
