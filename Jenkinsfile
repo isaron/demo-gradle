@@ -1,10 +1,10 @@
-def projectGroup = 'com.ssii.rdp'
-def appName = 'demo-gradle'
+def projectGroup = 'rdp'
+def projectName = 'demo-gradle'
 def releaseVersion = '0.0.2'
 // def chartmuseum = 'chartmuseum.ssii.com'
-// def feSvcName = "${appName}-frontend"
+// def feSvcName = "${projectName}-frontend"
 // def registry = 'containers.ssii.com'
-// def imageRepo = "${registry}/${projectGroup}/${appName}:${env.BRANCH_NAME}.${env.BUILD_NUMBER}"
+// def imageRepo = "${registry}/${projectGroup}/${projectName}:${env.BRANCH_NAME}.${env.BUILD_NUMBER}"
 // def build_tag = env.BRANCH_NAME
 
 pipeline {
@@ -24,7 +24,7 @@ pipeline {
   stages {
     // stage('Checkout') {
     //   steps {
-    //     // checkout([$class: 'GitSCM',branches:[[name:'*/master']],doGenerateSubmoduleConfigurations:false,xtensions:[],submoduleCfg:[],userRemoteConfigs:[[credentialsId:'git:12c5e7bd0e763bbeffcbd5e1bcbc7e010014e7c083c3e78474e99fccbbe68237',url:'https://gitea.ssii.com/RDP/${appName}.git']]])
+    //     // checkout([$class: 'GitSCM',branches:[[name:'*/master']],doGenerateSubmoduleConfigurations:false,xtensions:[],submoduleCfg:[],userRemoteConfigs:[[credentialsId:'git:12c5e7bd0e763bbeffcbd5e1bcbc7e010014e7c083c3e78474e99fccbbe68237',url:'https://gitea.ssii.com/RDP/${projectName}.git']]])
     //     checkout scm
     //   }
     // }
@@ -59,7 +59,7 @@ pipeline {
         // }
         // stage('Code Analysis') {
         //   steps {
-        //     sh("./gradlew sonarqube -Dsonar.projectKey=${appName} -Dsonar.host.url=https://sonar.ssii.com -Dsonar.login=05e82e5b6bd6a9503972de695897d701b2965546")
+        //     sh("./gradlew sonarqube -Dsonar.projectKey=${projectName} -Dsonar.host.url=https://sonar.ssii.com -Dsonar.login=05e82e5b6bd6a9503972de695897d701b2965546")
         //     waitForQualityGate true
         //   }
         // }
@@ -103,11 +103,11 @@ pipeline {
             }
           }
           steps {
-            sh("sed -i 's|tag: *|tag: ${build_tag}|g' ./charts/${appName}/values.yaml")
-            sh("sed -i 's|UriPrefix: *|UriPrefix: /${build_tag}|g' ./charts/${appName}/values.yaml")
-            sh("sed -i 's|version: *|version: ${release_tag}|g' ./charts/${appName}/Chart.yaml")
-            sh("sed -i 's|appVersion: *|appVersion: ${release_tag}|g' ./charts/${appName}/Chart.yaml")
-            sh("helm push -f ./charts/${appName} --version=${release_tag} chartmuseum")
+            sh("sed -i 's|tag: *|tag: ${build_tag}|g' ./charts/${projectName}/values.yaml")
+            sh("sed -i 's|UriPrefix: *|UriPrefix: /${build_tag}|g' ./charts/${projectName}/values.yaml")
+            sh("sed -i 's|version: *|version: ${release_tag}|g' ./charts/${projectName}/Chart.yaml")
+            sh("sed -i 's|appVersion: *|appVersion: ${release_tag}|g' ./charts/${projectName}/Chart.yaml")
+            sh("helm push -f ./charts/${projectName} --version=${release_tag} chartmuseum")
           }
         }
         stage('Push Helm chart - Staging') {
@@ -115,11 +115,11 @@ pipeline {
             branch 'staging'
           }
           steps {
-            sh("sed -i 's|tag: *|tag: ${build_tag}|g' ./charts/${appName}/values.yaml")
-            sh("sed -i 's|UriPrefix: *|UriPrefix: /${build_tag}|g' ./charts/${appName}/values.yaml")
-            sh("sed -i 's|version: *|version: ${release_tag}|g' ./charts/${appName}/Chart.yaml")
-            sh("sed -i 's|appVersion: *|appVersion: ${release_tag}|g' ./charts/${appName}/Chart.yaml")
-            sh("helm push -f ./charts/${appName} --version=${release_tag} chartmuseum")
+            sh("sed -i 's|tag: *|tag: ${build_tag}|g' ./charts/${projectName}/values.yaml")
+            sh("sed -i 's|UriPrefix: *|UriPrefix: /${build_tag}|g' ./charts/${projectName}/values.yaml")
+            sh("sed -i 's|version: *|version: ${release_tag}|g' ./charts/${projectName}/Chart.yaml")
+            sh("sed -i 's|appVersion: *|appVersion: ${release_tag}|g' ./charts/${projectName}/Chart.yaml")
+            sh("helm push -f ./charts/${projectName} --version=${release_tag} chartmuseum")
           }
         }
         stage('Push Helm chart - Prod') {
@@ -130,13 +130,13 @@ pipeline {
             }
           }
           steps {
-            sh("sed -i 's|tag: *|tag: ${build_tag}|g' ./charts/${appName}/values.yaml")
-            sh("sed -i 's|prodReady: *|prodReady: true|g' ./charts/${appName}/values.yaml")
-            sh("sed -i 's|version: *|version: ${release_tag}|g' ./charts/${appName}/Chart.yaml")
-            sh("sed -i 's|appVersion: *|appVersion: ${release_tag}|g' ./charts/${appName}/Chart.yaml")
+            sh("sed -i 's|tag: *|tag: ${build_tag}|g' ./charts/${projectName}/values.yaml")
+            sh("sed -i 's|prodReady: *|prodReady: true|g' ./charts/${projectName}/values.yaml")
+            sh("sed -i 's|version: *|version: ${release_tag}|g' ./charts/${projectName}/Chart.yaml")
+            sh("sed -i 's|appVersion: *|appVersion: ${release_tag}|g' ./charts/${projectName}/Chart.yaml")
             echo "app version: ${release_tag}"
-            sh("cat ./charts/${appName}/Chart.yaml")
-            sh("helm push -f ./charts/${appName} --version=${release_tag} chartmuseum")
+            sh("cat ./charts/${projectName}/Chart.yaml")
+            sh("helm push -f ./charts/${projectName} --version=${release_tag} chartmuseum")
           }
         }
       }
@@ -154,7 +154,7 @@ pipeline {
           }
           steps {
             sh("helm repo update")
-            sh("helm upgrade --install ${appName} --version ${release_tag} --namespace dev chartmuseum/${appName}")
+            sh("helm upgrade --install ${projectName} --version ${release_tag} --namespace dev chartmuseum/${projectName}")
           }
         }
         stage('Deploy - Testing') {
@@ -163,7 +163,7 @@ pipeline {
           }
           steps {
             sh("helm repo update")
-            sh("helm upgrade --install ${appName} --version ${release_tag} --namespace testing chartmuseum/${appName}")
+            sh("helm upgrade --install ${projectName} --version ${release_tag} --namespace testing chartmuseum/${projectName}")
           }
         }
         stage('Deploy - Staging') {
@@ -177,7 +177,7 @@ pipeline {
           // }
           steps {
             sh("helm repo update")
-            sh("helm upgrade --install ${appName} --version ${release_tag} --namespace staging chartmuseum/${appName}")
+            sh("helm upgrade --install ${projectName} --version ${release_tag} --namespace staging chartmuseum/${projectName}")
           }
         }
         stage('Deploy - Prod') {
@@ -199,7 +199,7 @@ pipeline {
           }
           steps {
             sh("helm repo update")
-            sh("helm upgrade --install ${appName} --version ${release_tag} --namespace production chartmuseum/${appName}")
+            sh("helm upgrade --install ${projectName} --version ${release_tag} --namespace production chartmuseum/${projectName}")
           }
         }
       }

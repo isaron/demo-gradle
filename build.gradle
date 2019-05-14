@@ -32,7 +32,7 @@ apply plugin: 'com.google.cloud.tools.jib'
 apply plugin: 'com.bmuschko.docker-remote-api'
 
 
-group = "${projectGroup}"
+group = 'com.ssii.rdp'
 description = "Demo spring-boot project with Gradle."
 version = "${projectVersion}"
 sourceCompatibility = 1.8
@@ -109,7 +109,7 @@ jib {
         }
     }
     to {
-        image = "${registryUrl}/${project.group}/${rootProject.name}:${project.version}"
+        image = "${registryUrl}/${projectGroup}/${projectName}:${projectVersion}"
         auth {
             username = "${nexusUsername}"
             password = "${nexusPassword}"
@@ -150,7 +150,7 @@ task getDockerfile(type: Dockerfile) {
 task buildImage(type: DockerBuildImage) {
     dependsOn getDockerfile
     inputDir = getDockerfile.destFile.get().asFile.parentFile
-    tags.add('${registryUrl}/${rootProject.name}:${project.version}')
+    tags.add('${registryUrl}/${projectGroup}/${projectName}:${projectVersion}')
 }
 
 task pushImage(type: DockerPushImage) {
