@@ -134,6 +134,8 @@ pipeline {
             sh("sed -i 's|prodReady: *|prodReady: true|g' ./charts/${appName}/values.yaml")
             sh("sed -i 's|version: *|version: ${release_tag}|g' ./charts/${appName}/Chart.yaml")
             sh("sed -i 's|appVersion: *|appVersion: ${release_tag}|g' ./charts/${appName}/Chart.yaml")
+            echo "app version: ${release_tag}"
+            sh("cat ./charts/${appName}/Chart.yaml")
             sh("helm push -f ./charts/${appName} --version=${release_tag} chartmuseum")
           }
         }
