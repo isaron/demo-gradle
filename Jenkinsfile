@@ -46,11 +46,11 @@ pipeline {
             sh("sed -i 's#projectVersion=0.0.1#projectVersion=${release_tag}-SNAPSHOT#' ./gradle.properties")
           }
         }
+        echo "build_tag: ${build_tag}"
+        echo "release_tag: ${release_tag}"
         sh("chmod +x ./gradlew")
         sh("./gradlew clean")
       }
-      echo "build_tag: ${build_tag}"
-      echo "release_tag: ${release_tag}"
     }
     stage('Test') {
       // parallel {
