@@ -199,6 +199,7 @@ pipeline {
           }
           steps {
             sh("helm repo update")
+            sh("helm search chartmuseum/")
             sh("helm upgrade --install ${projectName} --version ${release_tag} --namespace production chartmuseum/${projectName}")
           }
         }
