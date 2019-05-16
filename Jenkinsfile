@@ -39,16 +39,18 @@ pipeline {
             build_tag = "${releaseVersion}-${env.BRANCH_NAME}"
           }
           release_tag = "${build_tag}"
-          sh("sed -i 's|projectVersion=0.0.1|projectVersion=${release_tag}|g' ./gradle.properties")
+          sh("sed -i 's#projectVersion=0.0.1#projectVersion=${release_tag}#' ./gradle.properties")
           if (env.BRANCH_NAME != 'staging' && env.BRANCH_NAME != 'master' && env.BRANCH_NAME != "${releaseVersion}") {
             build_tag = "${env.BRANCH_NAME}-${build_tag}"
             release_tag = "${releaseVersion}-${build_tag}"
-            sh("sed -i 's|projectVersion=0.0.1|projectVersion=${release_tag}-SNAPSHOT|g' ./gradle.properties")
+            sh("sed -i 's#projectVersion=0.0.1#projectVersion=${release_tag}-SNAPSHOT#' ./gradle.properties")
           }
         }
         sh("chmod +x ./gradlew")
         sh("./gradlew clean")
       }
+      echo "build_tag: ${build_tag}"
+      echo "release_tag: ${release_tag}"
     }
     stage('Test') {
       // parallel {
@@ -103,10 +105,10 @@ pipeline {
             }
           }
           steps {
-            sh("sed -i 's|tag: *|tag: ${build_tag}|g' ./charts/${projectName}/values.yaml")
-            sh("sed -i 's|UriPrefix: *|UriPrefix: /${build_tag}|g' ./charts/${projectName}/values.yaml")
-            sh("sed -i 's|version: *|version: ${release_tag}|g' ./charts/${projectName}/Chart.yaml")
-            sh("sed -i 's|appVersion: *|appVersion: ${release_tag}|g' ./charts/${projectName}/Chart.yaml")
+            sh("sed -i 's#tag: *#tag: ${build_tag}#' ./charts/${projectName}/values.yaml")
+            sh("sed -i 's#UriPrefix: *#UriPrefix: /${build_tag}#' ./charts/${projectName}/values.yaml")
+            sh("sed -i 's#version: *#version: ${release_tag}#' ./charts/${projectName}/Chart.yaml")
+            sh("sed -i 's#appVersion: *#appVersion: ${release_tag}#' ./charts/${projectName}/Chart.yaml")
             sh("helm push -f ./charts/${projectName} --version=${release_tag} chartmuseum")
           }
         }
@@ -115,10 +117,10 @@ pipeline {
             branch 'staging'
           }
           steps {
-            sh("sed -i 's|tag: *|tag: ${build_tag}|g' ./charts/${projectName}/values.yaml")
-            sh("sed -i 's|UriPrefix: *|UriPrefix: /${build_tag}|g' ./charts/${projectName}/values.yaml")
-            sh("sed -i 's|version: *|version: ${release_tag}|g' ./charts/${projectName}/Chart.yaml")
-            sh("sed -i 's|appVersion: *|appVersion: ${release_tag}|g' ./charts/${projectName}/Chart.yaml")
+            sh("sed -i 's#tag: *#tag: ${build_tag}#' ./charts/${projectName}/values.yaml")
+            sh("sed -i 's#UriPrefix: *#UriPrefix: /${build_tag}#' ./charts/${projectName}/values.yaml")
+            sh("sed -i 's#version: *#version: ${release_tag}#' ./charts/${projectName}/Chart.yaml")
+            sh("sed -i 's#appVersion: *#appVersion: ${release_tag}#' ./charts/${projectName}/Chart.yaml")
             sh("helm push -f ./charts/${projectName} --version=${release_tag} chartmuseum")
           }
         }
@@ -130,10 +132,10 @@ pipeline {
             }
           }
           steps {
-            sh("sed -i 's|tag: *|tag: ${build_tag}|g' ./charts/${projectName}/values.yaml")
-            sh("sed -i 's|prodReady: *|prodReady: true|g' ./charts/${projectName}/values.yaml")
-            sh("sed -i 's|version: *|version: ${release_tag}|g' ./charts/${projectName}/Chart.yaml")
-            sh("sed -i 's|appVersion: *|appVersion: ${release_tag}|g' ./charts/${projectName}/Chart.yaml")
+            sh("sed -i 's#tag: *#tag: ${build_tag}#' ./charts/${projectName}/values.yaml")
+            sh("sed -i 's#prodReady: *#prodReady: true#' ./charts/${projectName}/values.yaml")
+            sh("sed -i 's#version: *#version: ${release_tag}#' ./charts/${projectName}/Chart.yaml")
+            sh("sed -i 's#appVersion: *#appVersion: ${release_tag}#' ./charts/${projectName}/Chart.yaml")
             sh("cat ./charts/${projectName}/Chart.yaml")
             sh("helm search chartmuseum/")
             sh("helm push -f ./charts/${projectName} --version=${release_tag} chartmuseum")
@@ -186,7 +188,7 @@ pipeline {
               branch 'master'
               branch "${releaseVersion}"
             }
-            // expression { BRANCH_NAME == /(master|"${releaseVersion}")/ }
+            // expression { BRANCH_NAME == /(master#"${releaseVersion}")/ }
             // anyOf {
             //     environment name: 'DEPLOY_TO', value: 'production'
             //     environment name: 'DEPLOY_TO', value: 'release'
