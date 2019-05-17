@@ -8,10 +8,7 @@ metadata:
   name: {{ template "demo-gradle.fullname" . }}
   labels:
 {{ include "demo-gradle.labels.standard" . | indent 4 }}
-    # heritage: {{ .Release.Service | quote }}
-    # release: {{ .Release.Name | quote }}
     draft: {{ default "draft-app" .Values.draft }}
-    # chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
 spec:
   replicas: {{ .Values.replicaCount }}
   strategy:
@@ -20,20 +17,26 @@ spec:
 {{- if not .Values.persistence.enabled }}
 {{ toYaml .Values.RollingUpdate | indent 6 }}
 {{- end }}
+  selector:
+    matchLabels:
+      app: {{ template "demo-gradle.name" . }}
+      release: {{ .Release.Name }}
   template:
     metadata:
       name: {{ template "demo-gradle.fullname" . }}
       annotations:
         buildID: {{ .Values.image.tag }}
       labels:
+{{ include "demo-gradle.labels.standard" . | indent 8 }}
         draft: {{ default "draft-app" .Values.draft }}
-        app: {{ template "demo-gradle.name" . }}
-        heritage: {{ .Release.Service | quote }}
-        release: {{ .Release.Name | quote }}
     spec:
 {{- if .Values.NodeSelector }}
       nodeSelector:
 {{ toYaml .Values.NodeSelector | indent 8 }}
+{{- end }}
+{{- if .Values.hostAliases }}
+      hostAliases:
+{{ toYaml .Values.hostAliases | indent 8 }}
 {{- end }}
       containers:
       - name: {{ .Chart.Name }}
