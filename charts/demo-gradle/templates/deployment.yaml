@@ -5,7 +5,7 @@ apiVersion: apps/v1beta1
 {{- end }}
 kind: Deployment
 metadata:
-  name: {{ include "demo-gradle.fullname" . }}
+  name: {{ template "demo-gradle.fullname" . }}
   labels:
 {{ include "demo-gradle.labels.standard" . | indent 4 }}
     # heritage: {{ .Release.Service | quote }}
@@ -15,14 +15,14 @@ metadata:
 spec:
   replicas: {{ .Values.replicaCount }}
   strategy:
-    type: {{ if .Values.Persistence.Enabled }}Recreate{{ else }}RollingUpdate{{ end }}
+    type: {{ if .Values.persistence.enabled }}Recreate{{ else }}RollingUpdate{{ end }}
     rollingUpdate:
-{{- if not .Values.Persistence.Enabled }}
+{{- if not .Values.persistence.enabled }}
 {{ toYaml .Values.RollingUpdate | indent 6 }}
 {{- end }}
   template:
     metadata:
-      name: {{ include "demo-gradle.fullname" . }}
+      name: {{ template "demo-gradle.fullname" . }}
       annotations:
         buildID: {{ .Values.image.tag }}
       labels:
@@ -35,12 +35,7 @@ spec:
       nodeSelector:
 {{ toYaml .Values.NodeSelector | indent 8 }}
 {{- end }}
-    {{- if .Values.rbac.install }}
-      serviceAccountName: {{ include "demo-gradle.fullname" . }}
-    {{- else if .Values.rbac.serviceAccountName }}
-      serviceAccountName: {{ .Values.rbac.serviceAccountName }}
-    {{- end }}
-      serviceAccountName: {{ if .Values.rbac.install }}{{ template "demo-gradle.fullname" . }}{{ else }}"{{ .Values.rbac.serviceAccountName }}"{{ end }}
+      serviceAccountName: {{ template "demo-gradle.serviceAccountName" . }}
       containers:
       - name: {{ .Chart.Name }}
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -52,7 +47,7 @@ spec:
         ports:
         - containerPort: {{ .Values.service.ports.targetPort  }}
           name: {{ .Values.service.ports.name }}
-{{- if .Values.HealthProbes.Enabled }}
+{{- if .Values.HealthProbes.enabled }}
           livenessProbe:
             httpGet:
               path: "{{ default "" .Values.service.UriPrefix }}"
@@ -76,14 +71,19 @@ spec:
 {{ toYaml .Values.resources | indent 12 }}
 {{ end }}
         volumeMounts:
-{{- if .Values.Persistence.mounts }}
-{{ toYaml .Values.Persistence.mounts | indent 12 }}
+{{- if .Values.persistence.mounts }}
+{{ toYaml .Values.persistence.mounts | indent 12 }}
 {{- end }}
           - mountPath: /tmp
             name: tmp
       volumes:
-{{- if .Values.Persistence.volumes }}
-{{ tpl (toYaml .Values.Persistence.volumes | indent 6) . }}
+{{- if .Values.persistence.volumes }}
+{{ tpl (toYaml .Values.persistence.volumes | indent 6) . }}
 {{- end }}
       - name: tmp
+      {{- if .Values.persistence.enabled }}
+        persistentVolumeClaim:
+          claimName: {{ .Values.persistence.existingClaim | default (include "demo-gradle.fullname" .) }}
+      {{- else }}
         emptyDir: {}
+      {{- end -}}

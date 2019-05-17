@@ -68,3 +68,14 @@ demo-gradle-0.4.5
 {{- define "demo-gradle.chartref" -}}
 {{- replace "+" "_" .Chart.Version | printf "%s-%s" .Chart.Name -}}
 {{- end -}}
+
+{{/*
+Create the name of the service account to use
+*/}}
+{{- define "demo-gradle.serviceAccountName" -}}
+{{- if .Values.serviceAccount.create -}}
+    {{ default (include "demo-gradle.fullname" .) .Values.serviceAccount.name }}
+{{- else -}}
+    {{ default "default" .Values.serviceAccount.name }}
+{{- end -}}
+{{- end -}}

@@ -1,28 +1,25 @@
-{{- if and .Values.Persistence.Enabled (not .Values.Persistence.ExistingClaim) -}}
+{{- if and .Values.persistence.enabled (not .Values.persistence.ExistingClaim) -}}
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-{{- if .Values.Persistence.Annotations }}
+{{- if .Values.persistence.Annotations }}
   annotations:
-{{ toYaml .Values.Persistence.Annotations | indent 4 }}
+{{ toYaml .Values.persistence.Annotations | indent 4 }}
 {{- end }}
-  name: name: {{ include "demo-gradle.fullname" . }}
+  name: {{ include "demo-gradle.fullname" . }}
   labels:
-    app: name: {{ include "demo-gradle.fullname" . }}
-    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
-    release: "{{ .Release.Name }}"
-    heritage: "{{ .Release.Service }}"
+{{ include "demo-gradle.labels.standard" . | indent 4 }}
 spec:
   accessModes:
-    - {{ .Values.Persistence.AccessMode | quote }}
+    - {{ .Values.persistence.AccessMode | quote }}
   resources:
     requests:
-      storage: {{ .Values.Persistence.Size | quote }}
-{{- if .Values.Persistence.StorageClass }}
-{{- if (eq "-" .Values.Persistence.StorageClass) }}
+      storage: {{ .Values.persistence.Size | quote }}
+{{- if .Values.persistence.StorageClass }}
+{{- if (eq "-" .Values.persistence.StorageClass) }}
   storageClassName: ""
 {{- else }}
-  storageClassName: "{{ .Values.Persistence.StorageClass }}"
+  storageClassName: "{{ .Values.persistence.StorageClass }}"
 {{- end }}
 {{- end }}
 {{- end }}

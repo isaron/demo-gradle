@@ -4,7 +4,7 @@ metadata:
 {{- if .Values.service.name }}
   name: {{ .Values.service.name }}
 {{- else }}
-  name: {{ include "demo-gradle.fullname" . }}
+  name: {{ template "demo-gradle.fullname" . }}
 {{- end }}
   labels:
 {{ include "demo-gradle.labels.standard" . | indent 4 }}
@@ -35,5 +35,5 @@ spec:
       targetPort: {{ .Values.service.ports.targetPort }}
       protocol: {{ .Values.service.ports.protocol }}
   selector:
-    app: {{ template "demo-gradle.fullname" . }}
+    app: {{ template "demo-gradle.name" . }}
     release: {{ .Release.Name | quote }}

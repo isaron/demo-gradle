@@ -1,0 +1,55 @@
+{{ if .Values.rbac.create }}
+apiVersion: rbac.authorization.k8s.io/{{ required "A valid .Values.rbac.apiVersion entry required!" .Values.rbac.apiVersion }}
+kind: Role
+metadata:
+  name: {{ template "demo-gradle.fullname" . }}
+  labels:
+{{ include "demo-gradle.labels.standard" . | indent 4 }}
+rules:
+  - apiGroups:
+      - extensions
+    resources:
+      - deployments
+    verbs:
+      - get
+      - list
+      - watch
+      - patch
+      - update
+  - apiGroups:
+      - ""
+    resources:
+      - namespaces
+      - configmaps
+      - secrets
+      - pods
+      - services
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - pods/log
+    verbs:
+- get
+
+---
+apiVersion: rbac.authorization.k8s.io/{{ required "A valid .Values.rbac.apiVersion entry required!" .Values.rbac.apiVersion }}
+kind: RoleBinding
+metadata:
+  name: {{ template "demo-gradle.fullname" . }}
+  labels:
+{{ include "demo-gradle.labels.standard" . | indent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ template "demo-gradle.fullname" . }}
+subjects:
+- kind: ServiceAccount
+  name: {{ template "demo-gradle.serviceAccountName" . }}
+  namespace: {{ .Release.Namespace }}
+{{ end }}
