@@ -35,5 +35,5 @@ spec:
       targetPort: {{ .Values.service.ports.targetPort }}
       protocol: {{ .Values.service.ports.protocol }}
   selector:
-    app: {{ template "demo-gradle.name" . }}
+    app: {{ template "demo-gradle.fullname" . }}
     release: {{ .Release.Name | quote }}

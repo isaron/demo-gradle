@@ -103,8 +103,8 @@ pipeline {
             }
           }
           steps {
-            sh("sed -i 's#tag:.*#tag: ${build_tag}#' ./charts/${projectName}/values.yaml")
-            sh("sed -i 's#UriPrefix:.*#UriPrefix: /${build_tag}#' ./charts/${projectName}/values.yaml")
+            sh("sed -i 's#tag:.*#tag: ${release_tag}#' ./charts/${projectName}/values.yaml")
+            sh("sed -i 's#UriPrefix:.*#UriPrefix: /${release_tag}#' ./charts/${projectName}/values.yaml")
             sh("sed -i 's#version:.*#version: ${release_tag}#' ./charts/${projectName}/Chart.yaml")
             sh("sed -i 's#appVersion:.*#appVersion: ${release_tag}#' ./charts/${projectName}/Chart.yaml")
             sh("helm push -f ./charts/${projectName} --version=${release_tag} chartmuseum")
@@ -115,8 +115,8 @@ pipeline {
             branch 'staging'
           }
           steps {
-            sh("sed -i 's#tag:.*#tag: ${build_tag}#' ./charts/${projectName}/values.yaml")
-            sh("sed -i 's#UriPrefix:.*#UriPrefix: /${build_tag}#' ./charts/${projectName}/values.yaml")
+            sh("sed -i 's#tag:.*#tag: ${release_tag}#' ./charts/${projectName}/values.yaml")
+            sh("sed -i 's#UriPrefix:.*#UriPrefix: /${release_tag}#' ./charts/${projectName}/values.yaml")
             sh("sed -i 's#version:.*#version: ${release_tag}#' ./charts/${projectName}/Chart.yaml")
             sh("sed -i 's#appVersion:.*#appVersion: ${release_tag}#' ./charts/${projectName}/Chart.yaml")
             sh("helm push -f ./charts/${projectName} --version=${release_tag} chartmuseum")
@@ -130,7 +130,7 @@ pipeline {
             }
           }
           steps {
-            sh("sed -i 's#tag:.*#tag: ${build_tag}#' ./charts/${projectName}/values.yaml")
+            sh("sed -i 's#tag:.*#tag: ${release_tag}#' ./charts/${projectName}/values.yaml")
             sh("sed -i 's#prodReady:.*#prodReady: true#' ./charts/${projectName}/values.yaml")
             sh("sed -i 's#version:.*#version: ${release_tag}#' ./charts/${projectName}/Chart.yaml")
             sh("sed -i 's#appVersion:.*#appVersion: ${release_tag}#' ./charts/${projectName}/Chart.yaml")
