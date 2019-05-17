@@ -35,7 +35,6 @@ spec:
       nodeSelector:
 {{ toYaml .Values.NodeSelector | indent 8 }}
 {{- end }}
-      serviceAccountName: {{ template "demo-gradle.serviceAccountName" . }}
       containers:
       - name: {{ .Chart.Name }}
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
