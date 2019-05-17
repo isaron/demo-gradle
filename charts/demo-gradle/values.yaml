@@ -22,7 +22,7 @@ hostAliases: []
 #   - "www.example.com"
 
 image:
-  repository: containers.ssii.com/com.ssii.rdp/demo-gradle
+  repository: containers.ssii.com/rdp/demo-gradle
   tag: 0.0.1-SNAPSHOT
   pullPolicy: Always
   pullSecret: nexus-docker

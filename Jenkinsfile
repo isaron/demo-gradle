@@ -3,8 +3,8 @@ def projectName = 'demo-gradle'
 def releaseVersion = '0.0.1'
 // def chartmuseum = 'chartmuseum.ssii.com'
 // def feSvcName = "${projectName}-frontend"
-// def registry = 'containers.ssii.com'
-// def imageRepo = "${registry}/${projectGroup}/${projectName}:${env.BRANCH_NAME}.${env.BUILD_NUMBER}"
+def registry = 'containers.ssii.com'
+def imageRepo = "${registry}/${projectGroup}/${projectName}"
 // def build_tag = env.BRANCH_NAME
 
 pipeline {
@@ -39,12 +39,14 @@ pipeline {
             build_tag = "${releaseVersion}-${env.BRANCH_NAME}"
           }
           release_tag = "${build_tag}"
-          sh("sed -i 's#projectVersion=0.0.1#projectVersion=${release_tag}#' ./gradle.properties")
+          sh("sed -i 's#projectVersion=.*#projectVersion=${release_tag}#' ./gradle.properties")
           if (env.BRANCH_NAME != 'staging' && env.BRANCH_NAME != 'master' && env.BRANCH_NAME != "${releaseVersion}") {
             build_tag = "${env.BRANCH_NAME}-${build_tag}"
             release_tag = "${releaseVersion}-${build_tag}"
-            sh("sed -i 's#projectVersion=0.0.1#projectVersion=${release_tag}-SNAPSHOT#' ./gradle.properties")
+            sh("sed -i 's#projectVersion=.*#projectVersion=${release_tag}-SNAPSHOT#' ./gradle.properties")
           }
+          sh("sed -i 's#projectGroup=.*#projectGroup=${projectGroup}#' ./gradle.properties")
+          sh("sed -i 's#projectName=.*#projectName=${projectName}#' ./gradle.properties")
         }
         sh("chmod +x ./gradlew")
         sh("./gradlew clean")
@@ -103,8 +105,10 @@ pipeline {
             }
           }
           steps {
+            sh("sed -i 's#repository:.*#repository: ${imageRepo}#' ./charts/${projectName}/values.yaml")
             sh("sed -i 's#tag:.*#tag: ${release_tag}#' ./charts/${projectName}/values.yaml")
             sh("sed -i 's#UriPrefix:.*#UriPrefix: /${release_tag}#' ./charts/${projectName}/values.yaml")
+            sh("sed -i 's#name:.*#name: ${projectName}#' ./charts/${projectName}/Chart.yaml")
             sh("sed -i 's#version:.*#version: ${release_tag}#' ./charts/${projectName}/Chart.yaml")
             sh("sed -i 's#appVersion:.*#appVersion: ${release_tag}#' ./charts/${projectName}/Chart.yaml")
             sh("helm push -f ./charts/${projectName} --version=${release_tag} chartmuseum")
@@ -115,8 +119,10 @@ pipeline {
             branch 'staging'
           }
           steps {
+            sh("sed -i 's#repository:.*#repository: ${imageRepo}#' ./charts/${projectName}/values.yaml")
             sh("sed -i 's#tag:.*#tag: ${release_tag}#' ./charts/${projectName}/values.yaml")
             sh("sed -i 's#UriPrefix:.*#UriPrefix: /${release_tag}#' ./charts/${projectName}/values.yaml")
+            sh("sed -i 's#name:.*#name: ${projectName}#' ./charts/${projectName}/Chart.yaml")
             sh("sed -i 's#version:.*#version: ${release_tag}#' ./charts/${projectName}/Chart.yaml")
             sh("sed -i 's#appVersion:.*#appVersion: ${release_tag}#' ./charts/${projectName}/Chart.yaml")
             sh("helm push -f ./charts/${projectName} --version=${release_tag} chartmuseum")
@@ -130,11 +136,12 @@ pipeline {
             }
           }
           steps {
+            sh("sed -i 's#repository:.*#repository: ${imageRepo}#' ./charts/${projectName}/values.yaml")
             sh("sed -i 's#tag:.*#tag: ${release_tag}#' ./charts/${projectName}/values.yaml")
             sh("sed -i 's#prodReady:.*#prodReady: true#' ./charts/${projectName}/values.yaml")
+            sh("sed -i 's#name:.*#name: ${projectName}#' ./charts/${projectName}/Chart.yaml")
             sh("sed -i 's#version:.*#version: ${release_tag}#' ./charts/${projectName}/Chart.yaml")
             sh("sed -i 's#appVersion:.*#appVersion: ${release_tag}#' ./charts/${projectName}/Chart.yaml")
-            sh("cat ./charts/${projectName}/Chart.yaml")
             sh("helm push -f ./charts/${projectName} --version=${release_tag} chartmuseum")
           }
         }
@@ -197,8 +204,6 @@ pipeline {
             ok "确认部署"
           }
           steps {
-            sh("helm repo update")
-            sh("helm search ${projectName} --version ${release_tag}")
             sh("helm upgrade --install ${projectName} --version ${release_tag} --namespace production chartmuseum/${projectName}")
           }
         }
