@@ -35,7 +35,7 @@ rules:
     resources:
       - pods/log
     verbs:
-- get
+      - get
 
 ---
 apiVersion: rbac.authorization.k8s.io/{{ required "A valid .Values.rbac.apiVersion entry required!" .Values.rbac.apiVersion }}
