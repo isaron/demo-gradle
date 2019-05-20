@@ -116,7 +116,7 @@ jib {
         }
     }
     container {
-        jvmFlags = ['-Xms512m', '-Xmx512m', '-Xdebug', '-XX:+UnlockExperimentalVMOptions', '-XX:+UseCGroupMemoryLimitForHeap', '-XX:+UseContainerSupport', '-Xmy:flag=jib-rules']
+        jvmFlags = ['-Xms512m', '-Xmx512m', '-Xdebug', '-XshowSettings:vm', '-XX:+UnlockExperimentalVMOptions', '-XX:+UseContainerSupport', '-Xmy:flag=jib-rules']
         mainClass = 'com.ssii.rdp.demogradle.DemoGradleApplication'
         // args = ['some', 'args']
         ports = ['8080']

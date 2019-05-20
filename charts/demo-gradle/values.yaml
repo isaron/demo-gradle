@@ -39,7 +39,7 @@ service:
   labels: {}
   annotations: {}
     # external-dns.alpha.kubernetes.io/hostname: demo-gradle.rdp.ssii.com
-  JavaOpts: "-Xms512m -Xmx512m -Xdebug -XX:+UseContainerSupport -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap"
+  JavaOpts: "-Xms512m -Xmx512m -Xdebug -XshowSettings:vm -XX:+UseContainerSupport -XX:+UnlockExperimentalVMOptions"
   UriPrefix: /
   type: ClusterIP
   externalTrafficPolicy: Local
