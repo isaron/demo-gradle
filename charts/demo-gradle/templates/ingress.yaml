@@ -20,7 +20,7 @@ spec:
   - host: {{ .Values.ingress.hostName }}
     http:
       paths:
-      - path: {{ default "/" .Values.service.UriPrefix | quote }}
+      - path: {{ default "/" .Values.service.UriPrefix }}
         backend:
           serviceName: {{- if .Values.service.name }}{{ .Values.service.name }}{{- else }}{{ $fullName }}{{- end }}
           servicePort: {{ $httpPort }}
