@@ -101,6 +101,8 @@ publishing {
 
 // ============= Using jib-gradle-plugin without Docker daemon ================
 jib {
+    // extraDirectory = file('build/extra-directory')
+    // dependsOn setupExtraDir
     from {
         image = "${registryUrl}/base/openjdk:11-jre-slim"
         auth {
@@ -122,9 +124,15 @@ jib {
         ports = ['8080']
         // labels = [key1:'value1', key2:'value2']
         format = 'Docker'
+        useCurrentTimestamp = true
     }
     // allowInsecureRegistries = true
 }
+
+// task setupExtraDir(type: Copy) {
+//   from file('build/generated/files')
+//   into file('build/extra-directory/my/files')
+// }
 
 // tasks.build.dependsOn tasks.jib
 

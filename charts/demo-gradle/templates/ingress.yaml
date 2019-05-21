@@ -22,7 +22,7 @@ spec:
       paths:
       - path: {{ default "/" .Values.service.UriPrefix | quote }}
         backend:
-          serviceName: {{ $fullName }}
+          serviceName: {{- if .Values.service.name }}{{ .Values.service.name }}{{- else }}{{ $fullName }}{{- end }}
           servicePort: {{ $httpPort }}
 {{- if .Values.ingress.tls }}
   tls:
