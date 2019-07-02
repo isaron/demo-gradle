@@ -1,23 +1,13 @@
 # demo-gradle
 
-Spring Boot project with Gradle building.
+Demo Spring Cloud project deploying on K8s. Support building container images that doesn't depend on a Docker daemon.
 
-Spring Boot compoments:
-- Web
-- JPA
-- Security
-- Actuator
+Something as:
 
-Run Sonar Scanner for Gradle:
-- declare the `org.sonarqube` plugin in your `build.gradle` file:
+1. Spring Cloud project with Gradle.
+2. Use Jib(https://github.com/GoogleContainerTools/jib/tree/master/jib-gradle-plugin#quickstart) building container images that doesn't depend on a Docker daemon. And we can build images with Docker, of cource.
+3. Jenkins declarative pipeline for standardized CI-CD.
+4. Support deploying project on K8s cluster, with modified Helm charts.
+5. Support Skaffold for uniform build system. (In progress)
 
-```
-plugins {
-  id "org.sonarqube" version "2.7"
-}
-```
-- and run the following command:
-
-```
-./gradlew sonarqube -Dsonar.host.url=https://sonar.ssii.com -Dsonar.login=78e4c996818567e429196c8076dee35166351f1e
-```
+This could be a project template.
