@@ -48,7 +48,7 @@ pipeline {
           sh("sed -i 's#projectGroup=.*#projectGroup=${projectGroup}#' ./gradle.properties")
           sh("sed -i 's#projectName=.*#projectName=${projectName}#' ./gradle.properties")
         }
-        sh("helm repo add --username admin --password admin123 chartmuseum https://chartmuseum.ssii.com && helm repo add mirror http://172.30.80.33:8080/")
+        sh("helm repo add --username admin --password admin123 chartmuseum https://chartmuseum.ssii.com && helm repo add mirror http://172.30.80.33:8080/ && helm repo update")
         sh("chmod +x ./gradlew")
         sh("./gradlew clean")
       }
