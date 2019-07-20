@@ -11,13 +11,13 @@ buildscript {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
         // classpath "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.7"
         classpath "gradle.plugin.com.google.cloud.tools:jib-gradle-plugin:1.4.0"
-        classpath 'com.bmuschko:gradle-docker-plugin:4.3.0'
+        classpath 'com.bmuschko:gradle-docker-plugin:4.10.0'
     }
 }
 
 plugins {
   id "org.sonarqube" version "2.7"
-//   id 'com.bmuschko.docker-remote-api' version '4.3.0'
+//   id 'com.bmuschko.docker-remote-api' version '4.10.0'
 //   id "com.google.cloud.tools.jib" version "1.4.0"
 }
 
