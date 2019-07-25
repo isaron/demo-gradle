@@ -70,7 +70,8 @@ pipeline {
     }
     stage('Build') {
       steps {
-        sh("./gradlew bootJar")
+        // sh("./gradlew bootJar")
+        sh("./gradlew build")
       }
     }
     stage('Publish') {
