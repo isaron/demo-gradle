@@ -30,7 +30,7 @@ apply plugin: 'maven-publish'
 // apply plugin: "org.sonarqube"
 apply plugin: 'com.google.cloud.tools.jib'
 apply plugin: 'com.bmuschko.docker-remote-api'
-
+// apply plugin: "com.bmuschko.docker-spring-boot-application"
 
 group = 'com.ssii.rdp'
 description = "Demo spring-boot project with Gradle."
