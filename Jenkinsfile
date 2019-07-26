@@ -1,6 +1,6 @@
 def projectGroup = 'rdp'
 def projectName = 'demo-gradle'
-def releaseVersion = '0.0.1-SNAPSHOT'
+def releaseVersion = '0.0.1'
 // def chartmuseum = 'chartmuseum.ssii.com'
 // def feSvcName = "${projectName}-frontend"
 def registry = 'containers.ssii.com'
