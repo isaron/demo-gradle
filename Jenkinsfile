@@ -206,6 +206,7 @@ pipeline {
             ok "确认部署"
           }
           steps {
+            sh("helm repo update")
             sh("helm upgrade --install ${projectName} --version ${release_tag} --namespace production chartmuseum/${projectName}")
           }
         }
