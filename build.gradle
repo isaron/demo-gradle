@@ -62,7 +62,7 @@ dependencies {
 sonarqube {
     properties {
         property "sonar.host.url", 'http://sonar.ssii.com'
-        property "sonar.login", '05e82e5b6bd6a9503972de695897d701b2965546'
+        property "sonar.login", '530310e0cb5bd07e431f58e874d28647de5c2396'
         property "sonar.sourceEncoding", "UTF-8"
         property 'sonar.projectName', '${rootProject.name}'
     }
