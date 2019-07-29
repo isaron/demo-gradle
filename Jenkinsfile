@@ -54,19 +54,19 @@ pipeline {
       }
     }
     stage('Test') {
-      parallel {
-        stage('Integration Tests') {
+      // parallel {
+      //   stage('Integration Tests') {
           steps {
             sh("./gradlew test")
           }
-        }
-        stage('Code Analysis') {
-          steps {
-            sh("./gradlew sonarqube -Dsonar.projectKey=${projectName} -Dsonar.host.url=http://sonar.ssii.com -Dsonar.login=530310e0cb5bd07e431f58e874d28647de5c2396")
-            waitForQualityGate true
-          }
-        }
-      }
+      //   }
+      //   stage('Code Analysis') {
+      //     steps {
+      //       sh("./gradlew sonarqube -Dsonar.projectKey=${projectName} -Dsonar.host.url=http://sonar.ssii.com -Dsonar.login=b3a692fb7f0d4d7a31cc9cdf1559ced0e8ede4bd")
+      //       waitForQualityGate true
+      //     }
+      //   }
+      // }
     }
     stage('Build') {
       steps {
