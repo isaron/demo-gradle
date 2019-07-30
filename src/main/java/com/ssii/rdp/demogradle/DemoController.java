@@ -8,6 +8,6 @@ public class DemoController {
     
     @RequestMapping("/")
     public String index() {
-        return "Greetings from Kubernetes! dev master";
+        return "Greetings from Kubernetes! develop branch";
     }
 }
