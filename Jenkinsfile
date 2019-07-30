@@ -163,7 +163,7 @@ pipeline {
           }
           steps {
             sh("helm repo update")
-            sh("helm upgrade --install ${projectName} --version ${release_tag} --namespace develop chartmuseum/${projectName}")
+            sh("helm upgrade --install ${projectName}-dev --version ${release_tag} --namespace develop chartmuseum/${projectName}")
           }
         }
         stage('Deploy - Testing') {
@@ -172,7 +172,7 @@ pipeline {
           }
           steps {
             sh("helm repo update")
-            sh("helm upgrade --install ${projectName} --version ${release_tag} --namespace testing chartmuseum/${projectName}")
+            sh("helm upgrade --install ${projectName}-testing --version ${release_tag} --namespace testing chartmuseum/${projectName}")
           }
         }
         stage('Deploy - Staging') {
@@ -186,7 +186,7 @@ pipeline {
           // }
           steps {
             sh("helm repo update")
-            sh("helm upgrade --install ${projectName} --version ${release_tag} --namespace staging chartmuseum/${projectName}")
+            sh("helm upgrade --install ${projectName}-staging --version ${release_tag} --namespace staging chartmuseum/${projectName}")
           }
         }
         stage('Deploy - Prod') {
