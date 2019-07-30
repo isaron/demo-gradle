@@ -163,7 +163,7 @@ pipeline {
           }
           steps {
             sh("helm repo update")
-            sh("helm upgrade --install ${projectName} --version ${release_tag} --namespace dev chartmuseum/${projectName}")
+            sh("helm upgrade --install ${projectName} --version ${release_tag} --namespace develop chartmuseum/${projectName}")
           }
         }
         stage('Deploy - Testing') {
