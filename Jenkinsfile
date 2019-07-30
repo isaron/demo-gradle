@@ -109,7 +109,7 @@ pipeline {
           }
           steps {
             sh("sed -i 's#repository:.*#repository: ${imageRepo}#' ./charts/${projectName}/values.yaml")
-            sh("sed -i 's#tag:.*#tag: ${release_tag}#' ./charts/${projectName}/values.yaml")
+            sh("sed -i 's#tag:.*#tag: ${release_tag}-SNAPSHOT#' ./charts/${projectName}/values.yaml")
             sh("sed -i 's#UriPrefix:.*#UriPrefix: /${release_tag}#' ./charts/${projectName}/values.yaml")
             sh("sed -i 's#name:.*#name: ${projectName}#' ./charts/${projectName}/Chart.yaml")
             sh("sed -i 's#version:.*#version: ${release_tag}#' ./charts/${projectName}/Chart.yaml")
