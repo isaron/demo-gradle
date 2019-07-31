@@ -165,7 +165,7 @@ pipeline {
           }
           steps {
             sh("helm repo update")
-            // sh("helm del --purge ${projectName}-dev")
+            sh("helm del --purge ${projectName}-dev")
             sh("helm install --name ${projectName}-dev --version ${release_tag} --namespace develop chartmuseum/${projectName}")
           }
         }
@@ -175,7 +175,7 @@ pipeline {
           }
           steps {
             sh("helm repo update")
-            // sh("helm del --purge ${projectName}-testing")
+            sh("helm del --purge ${projectName}-testing")
             sh("helm install --name ${projectName}-testing --version ${release_tag} --namespace testing chartmuseum/${projectName}")
           }
         }
@@ -190,7 +190,7 @@ pipeline {
           // }
           steps {
             sh("helm repo update")
-            // sh("helm del --purge ${projectName}-staging")
+            sh("helm del --purge ${projectName}-staging")
             sh("helm install --name ${projectName}-staging --version ${release_tag} --namespace staging chartmuseum/${projectName}")
           }
         }
@@ -213,7 +213,7 @@ pipeline {
           // }
           steps {
             sh("helm repo update")
-            // sh("helm del --purge ${projectName}")
+            sh("helm del --purge ${projectName}")
             sh("helm install --name ${projectName} --version ${release_tag} --namespace production chartmuseum/${projectName}")
           }
         }
