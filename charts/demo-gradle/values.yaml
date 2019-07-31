@@ -23,7 +23,7 @@ hostAliases: []
 
 image:
   repository: containers.ssii.com/rdp/demo-gradle
-  tag: 0.0.1-SNAPSHOT
+  tag: 0.0.1
   pullPolicy: Always
   pullSecret: nexus-docker
 
@@ -69,12 +69,12 @@ ingress:
     certmanager.k8s.io/cluster-issuer: ca-issuer
     nginx.ingress.kubernetes.io/ssl-redirect: "false"
     # kubernetes.io/tls-acme: "true"
-  # baseDomain: rdp.ssii.com
-  hostName: demo-gradle.rdp.ssii.com
+  baseDomain: rdp.ssii.com
+  hostName: demo-gradle
   tls:
   - secretName: demo-gradle-tls
-    hosts:
-      - demo-gradle.rdp.ssii.com
+    # hosts:
+    #   - demo-gradle.rdp.ssii.com
 
 metrics:
   prometheus:
