@@ -203,11 +203,11 @@ pipeline {
             //     environment name: 'DEPLOY_TO', value: 'release'
             // }
           }
-          input {
-            message "确认部署Prod环境吗？"
-            id "prod-input"
-            ok "确认部署"
-          }
+          // input {
+          //   message "确认部署Prod环境吗？"
+          //   id "prod-input"
+          //   ok "确认部署"
+          // }
           steps {
             sh("helm repo update")
             sh("helm upgrade --install ${projectName} --version ${release_tag} --namespace production chartmuseum/${projectName}")
