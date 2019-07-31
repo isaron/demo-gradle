@@ -1,6 +1,6 @@
 def projectGroup = 'rdp'
 def projectName = 'demo-gradle'
-def releaseVersion = '0.0.1-SNAPSHOT'
+def releaseVersion = '0.0.1'
 // def chartmuseum = 'chartmuseum.ssii.com'
 // def feSvcName = "${projectName}-frontend"
 def registry = 'containers.ssii.com'
@@ -110,7 +110,8 @@ pipeline {
           steps {
             sh("sed -i 's#repository:.*#repository: ${imageRepo}#' ./charts/${projectName}/values.yaml")
             sh("sed -i 's#tag:.*#tag: ${release_tag}-SNAPSHOT#' ./charts/${projectName}/values.yaml")
-            sh("sed -i 's#UriPrefix:.*#UriPrefix: /${release_tag}#' ./charts/${projectName}/values.yaml")
+            // sh("sed -i 's#UriPrefix:.*#UriPrefix: /${release_tag}#' ./charts/${projectName}/values.yaml")
+            sh("sed -i 's#hostName:.*#hostName: ${release_tag}.${projectName}#' ./charts/${projectName}/values.yaml")
             sh("sed -i 's#name:.*#name: ${projectName}#' ./charts/${projectName}/Chart.yaml")
             sh("sed -i 's#version:.*#version: ${release_tag}#' ./charts/${projectName}/Chart.yaml")
             sh("sed -i 's#appVersion:.*#appVersion: ${release_tag}#' ./charts/${projectName}/Chart.yaml")
@@ -124,7 +125,8 @@ pipeline {
           steps {
             sh("sed -i 's#repository:.*#repository: ${imageRepo}#' ./charts/${projectName}/values.yaml")
             sh("sed -i 's#tag:.*#tag: ${release_tag}#' ./charts/${projectName}/values.yaml")
-            sh("sed -i 's#UriPrefix:.*#UriPrefix: /${release_tag}#' ./charts/${projectName}/values.yaml")
+            // sh("sed -i 's#UriPrefix:.*#UriPrefix: /${release_tag}#' ./charts/${projectName}/values.yaml")
+            sh("sed -i 's#hostName:.*#hostName: ${release_tag}.${projectName}#' ./charts/${projectName}/values.yaml")
             sh("sed -i 's#name:.*#name: ${projectName}#' ./charts/${projectName}/Chart.yaml")
             sh("sed -i 's#version:.*#version: ${release_tag}#' ./charts/${projectName}/Chart.yaml")
             sh("sed -i 's#appVersion:.*#appVersion: ${release_tag}#' ./charts/${projectName}/Chart.yaml")
@@ -163,7 +165,8 @@ pipeline {
           }
           steps {
             sh("helm repo update")
-            sh("helm upgrade --install ${projectName}-dev --version ${release_tag} --namespace develop chartmuseum/${projectName}")
+            sh("helm del --purge ${projectName}-dev")
+            sh("helm install --name ${projectName}-dev --version ${release_tag} --namespace develop chartmuseum/${projectName}")
           }
         }
         stage('Deploy - Testing') {
@@ -172,7 +175,8 @@ pipeline {
           }
           steps {
             sh("helm repo update")
-            sh("helm upgrade --install ${projectName}-testing --version ${release_tag} --namespace testing chartmuseum/${projectName}")
+            sh("helm del --purge ${projectName}-testing")
+            sh("helm install --name ${projectName}-testing --version ${release_tag} --namespace testing chartmuseum/${projectName}")
           }
         }
         stage('Deploy - Staging') {
@@ -186,7 +190,8 @@ pipeline {
           // }
           steps {
             sh("helm repo update")
-            sh("helm upgrade --install ${projectName}-staging --version ${release_tag} --namespace staging chartmuseum/${projectName}")
+            sh("helm del --purge ${projectName}-staging")
+            sh("helm install --name ${projectName}-staging --version ${release_tag} --namespace staging chartmuseum/${projectName}")
           }
         }
         stage('Deploy - Prod') {
@@ -201,14 +206,15 @@ pipeline {
             //     environment name: 'DEPLOY_TO', value: 'release'
             // }
           }
-          input {
-            message "确认部署Prod环境吗？"
-            id "prod-input"
-            ok "确认部署"
-          }
+          // input {
+          //   message "确认部署Prod环境吗？"
+          //   id "prod-input"
+          //   ok "确认部署"
+          // }
           steps {
             sh("helm repo update")
-            sh("helm upgrade --install ${projectName} --version ${release_tag} --namespace production chartmuseum/${projectName}")
+            sh("helm del --purge ${projectName}")
+            sh("helm install --name ${projectName} --version ${release_tag} --namespace production chartmuseum/${projectName}")
           }
         }
       }

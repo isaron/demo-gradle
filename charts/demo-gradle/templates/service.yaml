@@ -15,7 +15,7 @@ metadata:
     # release: {{.Release.Name | quote }}
     # chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
   annotations:
-    external-dns.alpha.kubernetes.io/hostname: {{ .Values.ingress.hostName }}
+    external-dns.alpha.kubernetes.io/hostname: "{{ .Values.ingress.hostName }}.{{ .Values.ingress.baseDomain }}"
 {{- if .Values.service.annotations }}
 {{ toYaml .Values.service.annotations | indent 4 }}
 {{- end }}

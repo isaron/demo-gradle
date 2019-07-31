@@ -12,5 +12,5 @@
   export SERVICE_IP=$(kubectl get svc --namespace {{ .Release.Namespace }} {{ template "fullname" . }} -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
   echo http://$SERVICE_IP:{{ .Values.service.ports.port }}
 {{- else }}
-  http://{{ .Values.ingress.hostName }}{{ .Values.service.UriPrefix }} to access your application
+  http://{{ .Values.ingress.hostName }}.{{ .Values.ingress.baseDomain }}{{ .Values.service.UriPrefix }} to access your application
 {{- end }}
