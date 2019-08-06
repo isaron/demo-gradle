@@ -175,7 +175,7 @@ pipeline {
           }
           steps {
             sh("helm repo update")
-            sh("helm del --purge ${projectName}-testing")
+            // sh("helm del --purge ${projectName}-testing")
             sh("helm install --name ${projectName}-testing --version ${release_tag} --namespace testing chartmuseum/${projectName}")
           }
         }
