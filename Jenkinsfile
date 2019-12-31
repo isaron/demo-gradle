@@ -213,8 +213,8 @@ pipeline {
           // }
           steps {
             sh("helm repo update")
-            sh("helm del --purge ${projectName}")
-            sh("helm install --name ${projectName} --version ${release_tag} --namespace production chartmuseum/${projectName}")
+            // sh("helm del --purge ${projectName}")
+            sh("helm upgrade --install ${projectName} --version ${release_tag} --namespace production chartmuseum/${projectName}")
           }
         }
       }
