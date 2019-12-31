@@ -176,7 +176,11 @@ pipeline {
           steps {
             sh("helm repo update")
             // sh("helm del --purge ${projectName}-testing")
+<<<<<<< HEAD
             sh("helm upgrade --install ${projectName}-testing --version ${release_tag} --namespace testing chartmuseum/${projectName}")
+=======
+            sh("helm install --name ${projectName}-testing --version ${release_tag} --namespace testing chartmuseum/${projectName}")
+>>>>>>> 38cf76d136bfe2226e54dcd8115e4d98f150e0b9
           }
         }
         stage('Deploy - Staging') {
