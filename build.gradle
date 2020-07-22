@@ -11,7 +11,7 @@ buildscript {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
         classpath "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.8"
         classpath "gradle.plugin.com.google.cloud.tools:jib-gradle-plugin:2.4.0"
-        classpath 'com.bmuschko:gradle-docker-plugin:5.2.0'
+        classpath 'com.bmuschko:gradle-docker-plugin:6.6.0'
     }
 }
 
@@ -32,7 +32,7 @@ apply plugin: 'maven-publish'
 apply plugin: "org.sonarqube"
 apply plugin: 'com.google.cloud.tools.jib'
 apply plugin: 'com.bmuschko.docker-remote-api'
-// apply plugin: "com.bmuschko.docker-spring-boot-application"
+apply plugin: "com.bmuschko.docker-spring-boot-application"
 
 group = 'com.ssii.rdp'
 description = "Demo spring-boot project with Gradle."
