@@ -128,7 +128,7 @@ jib {
         ports = ['8080']
         // labels = [key1:'value1', key2:'value2']
         format = 'Docker'
-        useCurrentTimestamp = true
+        // useCurrentTimestamp = true
     }
     // allowInsecureRegistries = true
 }
