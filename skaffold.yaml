@@ -1,4 +1,4 @@
-apiVersion: skaffold/v1beta13
+apiVersion: skaffold/v2beta8
 kind: Config
 build:
   # tagPolicy:
@@ -25,26 +25,26 @@ build:
     #   # target: stageName
 
     # Using the Jib plugin for Gradle.
-    jibGradle: 
-      project: ""
+    jib:
+      type: gradle
 
     # kaniko:
     #   image: containers.ssii.com/kaniko/executor:v0.10.0
     #   buildContext:
     #     localDir: {}
     #   cache: {}
-  
+
   local:
     # false by default for local clusters, true for remote clusters
     push: false
     useDockerCLI: false
     useBuildkit: false
 
-  cluster:
-    pullSecretName: kaniko-secret
-    namespace: default
-    dockerConfig:
-      secretName: kaniko-secret
+  # cluster:
+  #   pullSecretName: kaniko-secret
+  #   namespace: default
+  #   dockerConfig:
+  #     secretName: kaniko-secret
 
 deploy:
   # kubectl:
@@ -78,7 +78,7 @@ deploy:
       valuesFiles:
       - charts/values.yaml
       skipBuildDependencies: true # Skip helm dep build
-      values:
+      artifactOverrides:
         image: containers.ssii.com/com.ssii.rdp/demo-gradle
       # namespace: demo
       #recreatePods will pass --recreate-pods to helm upgrade
@@ -87,6 +87,6 @@ deploy:
       #overrides:
       # some:
       #   key: someValue
-      #setValues get appended to the helm deploy with --set.  
+      #setValues get appended to the helm deploy with --set.
       #setValues:
         #some.key: someValue
